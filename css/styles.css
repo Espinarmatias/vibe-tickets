@@ -67,12 +67,6 @@ nav.scrolled{background:rgba(6,6,6,0.95);backdrop-filter:blur(20px);-webkit-back
 /* Hide center links on small screens */
 @media(max-width:768px){.nav-center{display:none;}.nav-btn:not(.nav-btn-primary):not(.nav-hamburger){display:none;}}
 
-/* ─── TICKER ─── */
-.ticker{overflow:hidden;background:#0d0d0d;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
-.ticker-inner{display:flex;gap:0;animation:ticker 25s linear infinite;white-space:nowrap;width:max-content;}
-.ticker-item{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;padding:0 32px;}
-.ticker-sep{color:#39ff14;font-size:10px;margin:0 4px;}
-@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* ─── HERO ─── */
 .hero{min-height:100vh;position:relative;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:#060606;}
@@ -80,17 +74,11 @@ nav.scrolled{background:rgba(6,6,6,0.95);backdrop-filter:blur(20px);-webkit-back
 .hero-bg-overlay{position:absolute;inset:0;background:#060606;}
 /* Noise texture overlay */
 .hero-bg-overlay::after{content:'';position:absolute;inset:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:200px 200px;}
-/* Subtle green grid lines */
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(57,255,20,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(57,255,20,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
-/* Green accent line left */
+/* Grid, accent line, globe — hidden globally */
+.hero-grid{display:none;}
 .hero-accent-line{position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,transparent 0%,var(--green) 30%,var(--green) 70%,transparent 100%);opacity:.4;}
 /* Globe decoration */
-.hero-globe-deco{
-  position:absolute;right:-80px;top:50%;transform:translateY(-50%);
-  width:clamp(280px,45vw,600px);height:clamp(280px,45vw,600px);
-  opacity:.12;
-  pointer-events:none;
-}
+.hero-globe-deco{display:none;}
 .hero-globe-deco svg{width:100%;height:100%;}
 /* Stats bar at top (PNG 11) */
 .hero-stats-bar{
@@ -1038,17 +1026,12 @@ footer{padding:60px 64px 32px;border-top:1px solid var(--border);}
   /* ── NAV ─────────────────────────────────────────────────────── */
   .nav-btn-primary{padding:7px 12px;font-size:12px;letter-spacing:.5px;}
 
-  /* ── TICKER ─────────────────────────────────────────────────── */
-  .ticker{background:rgba(0,0,0,0.25);border-bottom-color:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
-
   /* ── HERO ────────────────────────────────────────────────────── */
   /* Use svh so iOS Safari chrome doesn't cut content */
   .hero{min-height:100svh;overflow-x:hidden;}
-  /* Hide decorative elements that cause visual noise / overflow on mobile */
-  .hero-grid{display:none;}
   .hero-accent-line{display:none;}
-  /* Clear nav(60px) + ticker(~39px) = 99px at top, comfortable padding at bottom */
-  .hero-content{padding:116px 20px 52px;}
+  /* Clear nav(60px) = 60px + a bit of breathing room */
+  .hero-content{padding:80px 20px 52px;}
   .hero-event-label{font-size:9px;letter-spacing:2px;margin-bottom:12px;}
   .hero-title{font-size:52px;letter-spacing:-2px;margin-bottom:10px;}
   .hero-ticket-cta{font-size:17px;margin-bottom:18px;}
