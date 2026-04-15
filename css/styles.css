@@ -1038,9 +1038,15 @@ footer{padding:60px 64px 32px;border-top:1px solid var(--border);}
   /* ── NAV ─────────────────────────────────────────────────────── */
   .nav-btn-primary{padding:7px 12px;font-size:12px;letter-spacing:.5px;}
 
+  /* ── TICKER ─────────────────────────────────────────────────── */
+  .ticker{background:rgba(0,0,0,0.25);border-bottom-color:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+
   /* ── HERO ────────────────────────────────────────────────────── */
   /* Use svh so iOS Safari chrome doesn't cut content */
-  .hero{min-height:100svh;}
+  .hero{min-height:100svh;overflow-x:hidden;}
+  /* Hide decorative elements that cause visual noise / overflow on mobile */
+  .hero-grid{display:none;}
+  .hero-accent-line{display:none;}
   /* Clear nav(60px) + ticker(~39px) = 99px at top, comfortable padding at bottom */
   .hero-content{padding:116px 20px 52px;}
   .hero-event-label{font-size:9px;letter-spacing:2px;margin-bottom:12px;}
