@@ -276,7 +276,7 @@ function closeSuccess() {
 }
 
 function addToAppleWallet() {
-  alert("🍎 Apple Wallet\n\nIn the production version with Onvo Tix, your ticket downloads as a .pkpass file that is automatically added to your Apple Wallet.\n\nFor now, your ticket arrives by email with the QR code.");
+  alert("Apple Wallet\n\nIn the production version with Onvo Tix, your ticket downloads as a .pkpass file that is automatically added to your Apple Wallet.\n\nFor now, your ticket arrives by email with the QR code.");
 }
 
 
@@ -460,9 +460,9 @@ function submitOrgRequest() {
 function initFlyerCarousel() {
   var track = document.getElementById('flyer-track');
   if (!track) return;
-  var cs = { name:'COMING SOON', date:'', bg:'#0d0d0d', color:'#39ff14', useImg:'', comingSoon:true };
+  var cs = { name:'COMING SOON', date:'', bg:'#0d0d0d', color:'#6ab04c', useImg:'', comingSoon:true };
   var slides = [
-    { evKey:'rawdeo', name:'RAWDEO 2', date:'JUN 6 2026', bg:'#0a1a05', color:'#39ff14', useImg:'rawdeo' },
+    { evKey:'rawdeo', name:'RAWDEO 2', date:'JUN 6 2026', bg:'#0a110a', color:'#6ab04c', useImg:'rawdeo' },
     cs, cs, cs, cs, cs, cs
   ];
   var all  = slides.concat(slides);

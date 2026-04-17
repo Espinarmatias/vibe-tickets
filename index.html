@@ -39,7 +39,7 @@
     <div class="nav-logo-globe">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#080808" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
     </div>
-    <span class="nav-logo-text">VIBE.</span>
+    <span class="nav-logo-text">VIBE<span class="nav-logo-dot">.</span></span>
   </div>
   <div class="nav-center">
     <button class="nav-center-link" onclick="closeMenu();goPage('login')">Account</button>
@@ -117,14 +117,14 @@
     <!-- Globe decoration (PNG 10) -->
     <div class="hero-globe-deco">
       <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="100" cy="100" r="90" stroke="#39ff14" stroke-width="1"/>
-        <ellipse cx="100" cy="100" rx="50" ry="90" stroke="#39ff14" stroke-width="1"/>
-        <ellipse cx="100" cy="100" rx="90" ry="35" stroke="#39ff14" stroke-width="1"/>
-        <line x1="10" y1="100" x2="190" y2="100" stroke="#39ff14" stroke-width="1"/>
-        <line x1="100" y1="10" x2="100" y2="190" stroke="#39ff14" stroke-width="1"/>
-        <ellipse cx="100" cy="100" rx="75" ry="90" stroke="#39ff14" stroke-width=".5" opacity=".5"/>
-        <ellipse cx="100" cy="100" rx="25" ry="90" stroke="#39ff14" stroke-width=".5" opacity=".5"/>
-        <ellipse cx="100" cy="100" rx="90" ry="60" stroke="#39ff14" stroke-width=".5" opacity=".5"/>
+        <circle cx="100" cy="100" r="90" stroke="#6ab04c" stroke-width="1"/>
+        <ellipse cx="100" cy="100" rx="50" ry="90" stroke="#6ab04c" stroke-width="1"/>
+        <ellipse cx="100" cy="100" rx="90" ry="35" stroke="#6ab04c" stroke-width="1"/>
+        <line x1="10" y1="100" x2="190" y2="100" stroke="#6ab04c" stroke-width="1"/>
+        <line x1="100" y1="10" x2="100" y2="190" stroke="#6ab04c" stroke-width="1"/>
+        <ellipse cx="100" cy="100" rx="75" ry="90" stroke="#6ab04c" stroke-width=".5" opacity=".5"/>
+        <ellipse cx="100" cy="100" rx="25" ry="90" stroke="#6ab04c" stroke-width=".5" opacity=".5"/>
+        <ellipse cx="100" cy="100" rx="90" ry="60" stroke="#6ab04c" stroke-width=".5" opacity=".5"/>
       </svg>
     </div>
 
@@ -149,14 +149,15 @@
 
     <!-- Main content -->
     <div class="hero-content fade-in">
-      <div class="hero-event-label">Costa Rica · Season 2026</div>
-      <h1 class="hero-title">JOIN THE<br><span class="green">VIBE.</span></h1>
-      <p class="hero-ticket-cta">Buy your tickets <em onclick="openCheckout('rawdeo')">here.</em></p>
-      <p class="hero-sub">The #1 ticket platform in Costa Rica. Parties, concerts, and unique events — instant secure payments via card, SINPE Móvil, or Apple Pay.</p>
+      <div class="hero-event-label"><span class="hero-eyebrow-dot"></span>Costa Rica · Season 2026</div>
+      <h1 class="hero-title">JOIN<br>THE<br><span class="green">VIBE.</span></h1>
+      <p class="hero-sub">The #1 ticket platform in Costa Rica. Parties, concerts &amp; unique events — instant secure payments via card, SINPE Móvil, or Apple Pay.</p>
       <div class="hero-ctas">
         <button class="btn-primary" onclick="document.getElementById('events-section').scrollIntoView({behavior:'smooth'})">Explore Events</button>
-        <button class="btn-ghost" onclick="goPage('organizer')">For Organizers</button>
+        <button class="btn-ghost" onclick="goPage('organizer')">For Organizers →</button>
       </div>
+      <!-- Keep for JS access -->
+      <p class="hero-ticket-cta" style="display:none;">Buy your tickets <em onclick="openCheckout('rawdeo')">here.</em></p>
     </div>
   </section>
 
@@ -181,7 +182,7 @@
         <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.4;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="event-search" type="text" placeholder="Search events..." oninput="filterEvents(this.value)"
           style="width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--white);padding:11px 14px 11px 42px;border-radius:40px;font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .2s;"
-          onfocus="this.style.borderColor='rgba(57,255,20,.3)'" onblur="this.style.borderColor='var(--border)'"/>
+          onfocus="this.style.borderColor='rgba(106,176,76,.3)'" onblur="this.style.borderColor='var(--border)'"/>
       </div>
     </div>
     <div class="cats fade-in">
@@ -198,7 +199,7 @@
       <div class="ev-card" style="aspect-ratio:9/16;grid-row:span 2;cursor:default;">
         <div class="ev-card-overlay" style="background:#0d0d0d;"></div>
         <div class="ev-card-content" style="justify-content:center;align-items:center;">
-          <div style="color:#39ff14;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div>
+          <div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div>
         </div>
       </div>
       <!-- RAWDEO 2 - Featured (spans 2 cols) -->
@@ -222,11 +223,11 @@
         </div>
       </div>
       <!-- COMING SOON x5 -->
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#39ff14;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#39ff14;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#39ff14;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#39ff14;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#39ff14;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
+      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
+      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
+      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
+      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
+      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
     </div>
   </section>
 
@@ -420,7 +421,7 @@
         <div class="pay-methods">
           <div class="pay-opt on" onclick="selPay('card',this)"><span class="pay-opt-icon">💳</span><span class="pay-opt-label">Card</span></div>
           <div class="pay-opt" onclick="selPay('sinpe',this)"><span class="pay-opt-icon">📱</span><span class="pay-opt-label">SINPE</span></div>
-          <div class="pay-opt" onclick="selPay('apple',this)"><span class="pay-opt-icon">🍎</span><span class="pay-opt-label">Apple Pay</span></div>
+          <div class="pay-opt" onclick="selPay('apple',this)"><span class="pay-opt-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></span><span class="pay-opt-label">Apple Pay</span></div>
           <div class="pay-opt" onclick="selPay('google',this)"><span class="pay-opt-icon">🔵</span><span class="pay-opt-label">Google Pay</span></div>
         </div>
         <div class="pay-panel show" id="pp-card">
@@ -438,7 +439,7 @@
           <div class="pay-sinpe-info" id="sinpe-amt">📲 ₡10,000 → 7019-8460</div>
         </div>
         <div class="pay-panel" id="pp-apple">
-          <div class="pay-apple-inner"><div class="icon">🍎</div><div class="title">Apple Pay</div><div class="sub">Confirm with Face ID or Touch ID on your Apple device.</div></div>
+          <div class="pay-apple-inner"><div class="icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></div><div class="title">Apple Pay</div><div class="sub">Confirm with Face ID or Touch ID on your Apple device.</div></div>
         </div>
         <div class="pay-panel" id="pp-google">
           <div class="pay-apple-inner"><div class="icon">🔵</div><div class="title">Google Pay</div><div class="sub">Confirm with your fingerprint or PIN on your Android device.</div></div>
@@ -552,28 +553,46 @@
 </div>
 
 <!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="success-overlay">
-  <div class="success-card">
-    <div class="suc-mark">✦</div>
-    <div class="suc-title">YOU'RE IN!</div>
-    <div class="suc-event" id="suc-event-name">RAWDEO 2</div>
-    <p class="suc-note">Ticket confirmed. Check your email for your QR code.</p>
-    <div class="suc-ticket">
-      <div class="suc-ticket-top">
-        <div class="suc-ticket-name" id="suc-ev-name">RAWDEO 2</div>
-        <div class="suc-ticket-meta"><span id="suc-date">June 6, 2026</span> · <span id="suc-place">Pedregal Event Center</span></div>
-      </div>
-      <div class="suc-ticket-mid">
-        <div class="suc-qr"><img src="public/images/qr.svg" alt="QR" id="suc-qr" loading="lazy" decoding="async"/></div>
-        <div class="suc-info">
-          <div class="suc-row"><span class="suc-k">Tickets</span><span class="suc-v" id="suc-qty">1</span></div>
-          <div class="suc-row"><span class="suc-k">Total</span><span class="suc-v" id="suc-total">$45</span></div>
-          <div class="suc-row"><span class="suc-k">Code</span><span class="suc-v suc-code" id="suc-code">VB-XXXXXX</span></div>
+<div class="success-overlay" id="success-overlay" onclick="if(event.target===this)closeSuccess()">
+  <div class="suc-split">
+    <!-- LEFT: flyer + event info -->
+    <div class="suc-left">
+      <div class="suc-left-img"></div>
+      <div class="suc-left-tint"></div>
+      <div class="suc-left-fade"></div>
+      <div class="suc-left-content">
+        <div class="suc-left-tag">✦ TICKET CONFIRMED</div>
+        <div class="suc-left-title" id="suc-ev-name">RAWDEO 2</div>
+        <div class="suc-left-meta">
+          <strong id="suc-date">Jun 6, 2026 · 8:00 PM</strong><br>
+          <span id="suc-place">Pedregal Event Center</span>
         </div>
       </div>
-      <div class="suc-ticket-bottom">NON-REFUNDABLE · PRESENT AT DOOR · VIBE.</div>
     </div>
-    <button class="suc-btn" onclick="closeSuccess();goPage('my-tickets');renderTickets()">View my tickets →</button>
+    <!-- RIGHT: confirmation content -->
+    <div class="suc-right">
+      <button class="suc-close-btn" onclick="closeSuccess()">✕</button>
+      <div class="suc-conf-row">
+        <div class="suc-conf-dot"></div>
+        <span class="suc-conf-txt">PURCHASE CONFIRMED</span>
+      </div>
+      <div class="suc-check-circle">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <path d="M6 13L11 18L20 9" stroke="#6ab04c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="28" stroke-dashoffset="28" class="suc-check-path"/>
+        </svg>
+      </div>
+      <div class="suc-headline">YOU'RE<br><em>IN.</em></div>
+      <p class="suc-subline">Your ticket is confirmed. See you at <strong id="suc-event-name">Rawdeo 2</strong>.</p>
+      <div class="suc-detail-row"><span id="suc-qty">1 ticket</span>&nbsp;·&nbsp;<span id="suc-total">$45</span></div>
+      <div class="suc-actions">
+        <button class="suc-btn-wallet" onclick="addToAppleWallet()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Add to Apple Wallet
+        </button>
+        <button class="suc-btn-view" onclick="closeSuccess();goPage('my-tickets');renderTickets()">View My Tickets →</button>
+      </div>
+      <div class="suc-ref">Order ref: <span id="suc-code">VB-XXXXXX</span></div>
+    </div>
   </div>
 </div>
 
@@ -856,11 +875,11 @@
   <div class="support-header">
     <div class="support-avatar">
       <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
-        <path d="M8 22v-4C8 13.373 13.373 8 20 8s12 5.373 12 12v4" stroke="#39ff14" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <rect x="5" y="20" width="6" height="10" rx="3" fill="#39ff14"/>
-        <rect x="29" y="20" width="6" height="10" rx="3" fill="#39ff14"/>
-        <path d="M35 30v2a4 4 0 01-4 4h-4" stroke="#39ff14" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <circle cx="27" cy="36" r="2" fill="#39ff14"/>
+        <path d="M8 22v-4C8 13.373 13.373 8 20 8s12 5.373 12 12v4" stroke="#6ab04c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <rect x="5" y="20" width="6" height="10" rx="3" fill="#6ab04c"/>
+        <rect x="29" y="20" width="6" height="10" rx="3" fill="#6ab04c"/>
+        <path d="M35 30v2a4 4 0 01-4 4h-4" stroke="#6ab04c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <circle cx="27" cy="36" r="2" fill="#6ab04c"/>
       </svg>
     </div>
     <div>
