@@ -181,39 +181,34 @@
       <button class="cat" onclick="filterCat(this)">Electronic</button>
     </div>
     <div class="events-grid fade-in fade-in-delay-1" id="events-grid-wrap">
-      <!-- COMING SOON -->
-      <div class="ev-card" style="aspect-ratio:9/16;grid-row:span 2;cursor:default;">
-        <div class="ev-card-overlay" style="background:#0d0d0d;"></div>
-        <div class="ev-card-content" style="justify-content:center;align-items:center;">
-          <div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div>
-        </div>
-      </div>
       <!-- RAWDEO 2 - Featured (spans 2 cols) -->
       <div class="ev-card" onclick="goPage('event-detail')">
-        <img class="ev-card-img" src="public/images/rawdeo.jpg" alt="RAWDEO 2" loading="lazy" decoding="async"/>
-        <div class="ev-card-overlay"></div>
-        <div class="ev-card-content">
+        <div class="ev-card-img-wrap">
+          <img class="ev-card-img" src="public/images/rawdeo.jpg" alt="RAWDEO 2" loading="lazy" decoding="async"/>
+          <span class="ev-badge-sell">Selling Out</span>
+          <span class="ev-badge-date">Jun 6, 2026</span>
+        </div>
+        <div class="ev-card-body">
           <div class="ev-card-tags">
-            <span class="ev-tag ev-tag-green">SELLING OUT</span>
-            <span class="ev-tag ev-tag-outline">PARTY · ELECTRONIC</span>
-            <span class="ev-tag ev-tag-outline">14TH ANNIVERSARY</span>
+            <span class="ev-tag ev-tag-outline">Party · Electronic</span>
+            <span class="ev-tag ev-tag-outline">14th Anniversary</span>
           </div>
           <div class="ev-card-name">RAWDEO 2</div>
-          <div class="ev-card-meta">JUN 6, 2026 · 8:00 PM · PEDREGAL EVENT CENTER</div>
-          
+          <div class="ev-card-meta">8:00 PM · Pedregal Event Center</div>
           <div class="ev-card-cd"><div class="ev-cd-item"><span class="ev-cd-num" id="ev-cd-rawdeo-d">--</span><span class="ev-cd-lbl">Days</span></div><span class="ev-cd-sep">:</span><div class="ev-cd-item"><span class="ev-cd-num" id="ev-cd-rawdeo-h">--</span><span class="ev-cd-lbl">Hrs</span></div><span class="ev-cd-sep">:</span><div class="ev-cd-item"><span class="ev-cd-num" id="ev-cd-rawdeo-m">--</span><span class="ev-cd-lbl">Min</span></div><span class="ev-cd-sep">:</span><div class="ev-cd-item"><span class="ev-cd-num" id="ev-cd-rawdeo-s">--</span><span class="ev-cd-lbl">Sec</span></div></div>
           <div class="ev-card-footer">
-            <div class="ev-card-price">$45</div>
-            <button class="ev-card-buy" onclick="event.stopPropagation();openCheckout('rawdeo')">Buy now</button>
+            <div class="ev-card-price">$45 <span class="ev-price-sub">/ ticket</span></div>
+            <button class="ev-card-buy" onclick="event.stopPropagation();openCheckout('rawdeo')">Buy Now</button>
           </div>
         </div>
       </div>
-      <!-- COMING SOON x5 -->
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
-      <div class="ev-card" style="cursor:default;"><div class="ev-card-overlay" style="background:#0d0d0d;"></div><div class="ev-card-content" style="justify-content:center;align-items:center;"><div style="color:#6ab04c;font-size:11px;letter-spacing:.25em;font-weight:700;text-transform:uppercase;">Coming Soon</div></div></div>
+      <!-- COMING SOON x6 -->
+      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
+      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
+      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
+      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
+      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
+      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
     </div>
   </section>
 

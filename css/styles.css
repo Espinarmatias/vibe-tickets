@@ -241,32 +241,45 @@ section{padding:100px 64px;}
 
 /* CATEGORIES */
 .cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:40px;}
-.cat{background:transparent;border:1px solid var(--border);color:var(--gray);padding:8px 18px;border-radius:30px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
-.cat.on,.cat:hover{background:var(--green-dim);border-color:var(--border2);color:var(--white);}
+.cat{background:transparent;border:1px solid #2a2a2a;color:#555;padding:7px 16px;border-radius:20px;font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.04em;}
+.cat.on,.cat:hover{background:var(--green);border-color:var(--green);color:#0a0a0a;}
+
+/* SECTION TITLE — events override */
+.events-header .section-title{font-size:36px;letter-spacing:-1.5px;font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;}
 
 /* EVENT CARDS */
-.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
-.ev-card{position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;background:var(--bg3);}
-.ev-card:first-child{grid-column:span 2;aspect-ratio:16/9;}
-.ev-card-img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.25,.46,.45,.94);filter:brightness(.7);}
-.ev-card:hover .ev-card-img{transform:scale(1.06);filter:brightness(.85);}
-.ev-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.95) 0%,rgba(8,8,8,.4) 50%,transparent 100%);transition:background .3s;}
-.ev-card:hover .ev-card-overlay{background:linear-gradient(to top,rgba(8,8,8,.98) 0%,rgba(8,8,8,.5) 60%,rgba(8,8,8,.1) 100%);}
-.ev-card-content{position:absolute;bottom:0;left:0;right:0;padding:24px;}
-.ev-card-tags{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
-.ev-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:20px;}
-.ev-tag-green{background:var(--green);color:#080808;font-weight:700;}
-.ev-tag-outline{background:transparent;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);}
-.ev-card-name{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:1px;line-height:1;margin-bottom:8px;}
-.ev-card:first-child .ev-card-name{font-size:42px;}
-.ev-card-meta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:16px;}
-.ev-card-footer{display:flex;align-items:center;justify-content:space-between;}
-.ev-card-price{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--green);}
-.ev-card:first-child .ev-card-price{font-size:32px;}
-.ev-card-buy{background:var(--green);border:none;color:#080808;padding:9px 20px;border-radius:30px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;opacity:0;transform:translateY(8px);transition:all .3s;text-transform:uppercase;}
-.ev-card:hover .ev-card-buy{opacity:1;transform:translateY(0);}
-.ev-card-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
-.ev-placeholder-num{font-family:'Barlow Condensed',sans-serif;font-size:120px;font-weight:900;color:rgba(255,255,255,.03);}
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.ev-card{position:relative;overflow:hidden;cursor:pointer;background:#111;border:1px solid #1a1a1a;border-radius:12px;display:flex;flex-direction:column;transition:border-color .2s,transform .2s;}
+.ev-card:hover{border-color:#2a2a2a;transform:translateY(-2px);}
+.ev-card:first-child{grid-column:span 2;}
+/* Image area */
+.ev-card-img-wrap{position:relative;height:220px;overflow:hidden;flex-shrink:0;border-radius:12px 12px 0 0;}
+.ev-card-img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
+.ev-card:hover .ev-card-img{transform:scale(1.04);}
+/* Badges on image */
+.ev-badge-sell{position:absolute;top:12px;left:12px;background:var(--green);color:#0a0a0a;font-size:9px;font-weight:700;border-radius:4px;padding:4px 9px;text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;}
+.ev-badge-date{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.75);color:#fff;font-size:10px;border-radius:20px;padding:4px 10px;backdrop-filter:blur(4px);font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;}
+/* Card body */
+.ev-card-body{padding:16px;display:flex;flex-direction:column;gap:6px;flex:1;}
+.ev-card-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2px;}
+.ev-tag{font-size:10px;color:#3a3a3a;text-transform:uppercase;letter-spacing:.08em;background:transparent;border:none;padding:0;font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;}
+.ev-tag-green{color:var(--green);}
+.ev-tag-outline{color:#3a3a3a;}
+.ev-card-name{font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.15;}
+.ev-card-meta{font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;font-size:11px;color:#444;line-height:1.4;}
+.ev-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid #1a1a1a;}
+.ev-card-price{font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;font-size:18px;font-weight:800;color:#fff;}
+.ev-price-sub{font-size:11px;color:#333;font-weight:400;}
+.ev-card-buy{background:var(--green);border:none;color:#0a0a0a;padding:8px 16px;border-radius:6px;font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;font-size:10px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:background .2s;text-transform:uppercase;}
+.ev-card-buy:hover{background:#5a9940;}
+/* Coming soon cards */
+.ev-card-soon{background:#0d0d0d!important;border:1px dashed #1e1e1e!important;min-height:340px;display:flex;align-items:center;justify-content:center;cursor:default!important;}
+.ev-card-soon:hover{transform:none!important;border-color:#1e1e1e!important;}
+.ev-card-soon-label{color:#2a2a2a;font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:500;font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;}
+/* Legacy overlay/content — hidden in new design */
+.ev-card-overlay{display:none;}
+.ev-card-content{display:none;}
+.ev-card-placeholder{display:none;}
 
 /* ─── HOW IT WORKS ─── */
 .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:64px;border:1px solid var(--border);border-radius:16px;overflow:hidden;}
@@ -518,7 +531,7 @@ footer{padding:60px 64px 32px;border-top:1px solid var(--border);}
   .hero-countdown{top:68px;right:16px;}
   .cd-num{font-size:20px;}
   section{padding:64px 24px;}
-  .events-grid{grid-template-columns:1fr 1fr;}
+  .events-grid{grid-template-columns:1fr 1fr;gap:12px;}
   .ev-card:first-child{grid-column:span 2;}
   .how-grid{grid-template-columns:1fr 1fr;}
   .org-inner{grid-template-columns:1fr;gap:40px;}
@@ -1039,22 +1052,13 @@ footer{padding:60px 64px 32px;border-top:1px solid var(--border);}
 
   /* ── EVENTS SECTION ──────────────────────────────────────────── */
   .events-header{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:24px;}
+  .events-header .section-title{font-size:22px!important;}
   /* Flyer carousel: pull to edge */
   .flyer-carousel-wrap{margin-left:-20px!important;margin-right:-20px!important;}
   /* Single-column grid for mobile */
-  .events-grid{grid-template-columns:1fr;gap:2px;}
-  /* Featured MANSITA card: portrait removed, landscape instead */
-  .ev-card:first-child{
-    grid-column:span 1;
-    grid-row:span 1;
-    aspect-ratio:16/9;
-  }
-  .ev-card:first-child .ev-card-name{font-size:28px;}
-  /* All other cards: shorter portrait */
-  .ev-card{aspect-ratio:4/3;}
-  .ev-card-name{font-size:22px;}
-  .ev-card-content{padding:16px;}
-  .ev-card-tags{margin-bottom:8px;}
+  .events-grid{grid-template-columns:1fr;gap:12px;}
+  .ev-card:first-child{grid-column:span 1;}
+  .ev-card-img-wrap{height:180px;}
 
   /* ── HOW IT WORKS ────────────────────────────────────────────── */
   .how-grid{grid-template-columns:1fr;}
