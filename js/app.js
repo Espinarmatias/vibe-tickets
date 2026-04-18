@@ -545,6 +545,25 @@ setInterval(updateCardCountdowns, 1000);
 
 
 
+// TODO: wire to backend newsletter endpoint
+function joinNewsletter() {
+  var input = document.getElementById('nl-email');
+  var msg   = document.getElementById('nl-msg');
+  var val   = input ? input.value.trim() : '';
+  if (!msg) return;
+  if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+    msg.textContent = 'Enter a valid email address.';
+    msg.className   = 'nl-msg nl-msg--error';
+    setTimeout(function(){ msg.textContent = ''; msg.className = 'nl-msg'; }, 4000);
+    return;
+  }
+  msg.textContent = "You're in — first to know.";
+  msg.className   = 'nl-msg nl-msg--success';
+  if (input) input.value = '';
+  setTimeout(function(){ msg.textContent = ''; msg.className = 'nl-msg'; }, 4000);
+}
+
+
 // ─── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   initFadeIns();
