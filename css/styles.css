@@ -79,7 +79,7 @@ nav.scrolled{background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);-webkit-b
 #flyer-track{will-change:transform;}
 
 /* ─── HERO ─── */
-.hero{min-height:100svh;position:relative;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:#0a0a0a;}
+.hero{min-height:100svh;position:relative;display:flex;flex-direction:column;justify-content:center;overflow:hidden;background:#0a0a0a;}
 .hero-bg-img{display:none;}
 .hero-bg-overlay{position:absolute;inset:0;background:#0a0a0a;}
 /* Noise texture overlay */
