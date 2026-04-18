@@ -52,7 +52,7 @@ nav.scrolled{background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);-webkit-b
 .nav-logo-dot{color:var(--green);}
 .nav-center-link{
   background:transparent;border:none;
-  color:#666;
+  color:#999;
   padding:8px 0;
   font-family:-apple-system,'Inter','Helvetica Neue',sans-serif;font-size:13px;font-weight:500;
   cursor:pointer;transition:color .2s;letter-spacing:.02em;text-transform:none;
