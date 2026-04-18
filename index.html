@@ -296,9 +296,9 @@
       <div>
         <div class="footer-col-title">Platform</div>
         <div class="footer-links">
-          <a href="#">Browse Events</a>
-          <a href="#">My Tickets</a>
-          <a href="#">For Organizers</a>
+          <a href="#" onclick="event.preventDefault();goPage('home');setTimeout(function(){document.getElementById('events-section').scrollIntoView({behavior:'smooth'});},150)">Browse Events</a>
+          <a href="#" onclick="event.preventDefault();goPage('my-tickets')">My Tickets</a>
+          <a href="#" onclick="event.preventDefault();goPage('organizer')">For Organizers</a>
           <a href="#">How it works</a>
         </div>
       </div>
@@ -314,8 +314,8 @@
       <div>
         <div class="footer-col-title">Legal</div>
         <div class="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms</a>
+          <a href="#" onclick="event.preventDefault();goPage('privacy')">Privacy Policy</a>
+          <a href="#" onclick="event.preventDefault();goPage('terms')">Terms</a>
           <a href="#">Cookies</a>
         </div>
       </div>
