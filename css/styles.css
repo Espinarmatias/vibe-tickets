@@ -52,13 +52,13 @@ nav.scrolled{background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);-webkit-b
 .nav-logo-dot{color:var(--green);}
 .nav-center-link{
   background:transparent;border:none;
-  color:#999;
+  color:#f0f0f0;
   padding:8px 0;
-  font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;
+  font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;
   cursor:pointer;transition:color .2s;letter-spacing:.02em;text-transform:none;
 }
 .nav-center{display:flex;align-items:center;gap:28px;}
-.nav-center-link:hover{color:#fff;}
+.nav-center-link:hover{color:var(--green);}
 .nav-center-link.active{color:#fff;}
 .nav-right{display:flex;align-items:center;gap:8px;}
 .nav-btn{background:transparent;border:1px solid var(--border);color:var(--gray);padding:8px 18px;border-radius:40px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .2s,color .2s;letter-spacing:.5px;}
