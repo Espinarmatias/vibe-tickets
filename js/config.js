@@ -94,11 +94,8 @@ var EVENTS = {
     isMansita: false,
     isRawdeo:  true,
     tiers: [
-      { id:"raw-earlybird", name:"Raw Fitness Early Bird", price:20,  priceCRC:10000, capacity:200, sold:200, color:"#4488ff", soldout:true, fee:5 },
-      { id:"raw-tier1",     name:"Raw Fitness Tier 1",     price:40,  priceCRC:20000, capacity:400, sold:287, color:"#39ff14",              fee:5 },
-      { id:"raw-tier2",     name:"Raw Fitness Tier 2",     price:50,  priceCRC:25000, capacity:400, sold:142, color:"#ffb800",              fee:5 },
-      { id:"raw-vip",       name:"Raw Fitness VIP",        price:75,  priceCRC:37500, capacity:100, sold:61,  color:"#ff6b35",              fee:5 },
-      { id:"raw-cortesia",  name:"Complimentary",          price:0,   priceCRC:0,     capacity:50,  sold:18,  color:"#888",                 fee:0 },
+      { id:"vip",        name:"VIP",        priceCRC:35000, capacity:100, sold:0, soldout:false, color:"#6ab04c" },
+      { id:"early-bird", name:"EARLY BIRD", priceCRC:15000, capacity:200, sold:0, soldout:false, color:"#6ab04c" },
     ]
   },
 

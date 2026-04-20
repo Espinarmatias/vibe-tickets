@@ -13,6 +13,15 @@ var discountApplied = false;
 var discountPct    = 0;
 var loginIsRegister = true;
 
+var USD_RATE = 540; // colones per dollar — update when rate changes
+
+function formatCRC(amount) {
+  return '₡' + amount.toLocaleString('es-CR');
+}
+function formatUSD(amountCRC) {
+  return '~$' + Math.round(amountCRC / USD_RATE);
+}
+
 
 // ─── PAGES ───────────────────────────────────────────────────────
 function goPage(p) {
@@ -91,13 +100,28 @@ function selectTier(tierId) {
   var tier = ev.tiers.find(function(t){ return t.id === tierId; });
   if (!tier || tier.soldout) return;
   currentTier = tier;
-  document.querySelectorAll(".tier-option").forEach(function(el){
-    el.classList.toggle("selected", el.dataset.tierId === tierId);
+  document.querySelectorAll(".tier-card").forEach(function(el){
+    var isSel = el.dataset.tierId === tierId;
+    el.classList.toggle("selected", isSel);
+    var badge = el.querySelector('.tier-badge');
+    if (badge) {
+      if (isSel) {
+        badge.textContent = 'SELECTED ✓';
+        badge.className = 'tier-badge tier-badge--selected';
+      } else if (!el.classList.contains('tier-card--next')) {
+        badge.textContent = 'ON SALE NOW';
+        badge.className = 'tier-badge tier-badge--on-sale';
+      }
+    }
   });
   var priceEl = document.getElementById("ed-price");
   var noteEl  = document.getElementById("ed-price-note");
-  if (priceEl) priceEl.textContent = tier.price === 0 ? "Free" : "$" + tier.price;
-  if (noteEl)  noteEl.textContent  = tier.price === 0 ? "Complimentary" : "per ticket · incl. service fee";
+  if (priceEl) {
+    priceEl.innerHTML = tier.priceCRC === 0
+      ? "Free"
+      : formatCRC(tier.priceCRC) + '<span class="price-usd-secondary">' + formatUSD(tier.priceCRC) + ' USD</span>';
+  }
+  if (noteEl) noteEl.textContent = tier.priceCRC === 0 ? "Complimentary" : "per ticket · incl. service fee";
   updTotals();
 }
 
@@ -110,16 +134,15 @@ function updTotals() {
     price    = price    * (1 - discountPct / 100);
     priceCRC = priceCRC * (1 - discountPct / 100);
   }
-  var t    = qty * price;
   var tc   = qty * priceCRC;
-  var disp = payM === "sinpe"
-    ? "₡" + Math.round(tc).toLocaleString()
-    : (price === 0 ? "Free" : "$" + t.toFixed(2).replace(/\.00$/, ''));
+  var disp = priceCRC === 0
+    ? "Free"
+    : formatCRC(Math.round(tc)) + '<span class="price-usd-secondary">' + formatUSD(Math.round(tc)) + ' USD</span>';
   var lbl = qty + " ticket" + (qty > 1 ? "s" : "");
   var sinpeAmt = document.getElementById("sinpe-amt");
-  if (sinpeAmt) sinpeAmt.textContent = "📲 ₡" + tc.toLocaleString() + " → " + VIBE_CONFIG.sinpeNumber;
+  if (sinpeAmt) sinpeAmt.textContent = "📲 " + formatCRC(Math.round(tc)) + " → " + VIBE_CONFIG.sinpeNumber;
   var totalEl = document.getElementById("ed-total");
-  if (totalEl) totalEl.textContent = disp;
+  if (totalEl) totalEl.innerHTML = disp;
   var lblEl = document.getElementById("ed-qty-label");
   if (lblEl) lblEl.textContent = lbl;
 }
@@ -130,21 +153,22 @@ function renderTiers() {
   if (!container) return;
   if (!ev.tiers || ev.tiers.length === 0) { container.innerHTML = ""; return; }
   container.innerHTML = ev.tiers
-    .filter(function(t){ return !(t.price === 0 && t.id && t.id.indexOf('cortesia') !== -1); })
+    .filter(function(t){ return !(t.priceCRC === 0 && t.id && t.id.indexOf('cortesia') !== -1); })
     .map(function(t) {
-      var avail      = t.capacity - t.sold;
-      var availText  = t.soldout || avail <= 0 ? "Sold out" : "Available";
-      var availColor = t.soldout || avail <= 0 ? "#ff4444" : (avail <= 20 ? "#ffb800" : "var(--gray)");
-      var priceText  = t.price === 0
-        ? "<span style='color:var(--gray);font-size:14px'>Gratis</span>"
-        : "<span style='color:var(--green)'>" + (t.soldout || avail <= 0 ? "<span style='color:#ff4444'>$" + t.price + "</span>" : "$" + t.price) + "</span>";
-      return '<div class="tier-option' + (t.soldout || avail <= 0 ? " soldout" : "") + '" data-tier-id="' + t.id + '" onclick="selectTier(\'' + t.id + '\')">'
-        + '<div class="tier-left">'
-        + '<div class="tier-dot" style="background:' + t.color + '"></div>'
-        + '<div><div class="tier-name">' + t.name + '</div>'
-        + '<div class="tier-cap" style="color:' + availColor + '">' + availText + '</div></div>'
+      var avail   = t.capacity - t.sold;
+      var soldout = t.soldout || avail <= 0;
+      var cardCls  = 'tier-card' + (soldout ? ' tier-card--next' : '');
+      var badgeCls = soldout ? 'tier-badge tier-badge--next' : 'tier-badge tier-badge--on-sale';
+      var badgeTxt = soldout ? 'SOLD OUT' : 'ON SALE NOW';
+      var onclick  = soldout ? '' : ' onclick="selectTier(\'' + t.id + '\')"';
+      return '<div class="' + cardCls + '" data-tier-id="' + t.id + '"' + onclick + '>'
+        + '<div class="tier-top">'
+        + '<span class="tier-name">' + t.name + '</span>'
+        + '<span class="' + badgeCls + '">' + badgeTxt + '</span>'
         + '</div>'
-        + (t.soldout || avail <= 0 ? '<span class="tier-soldout-badge">SOLD OUT</span>' : '<div class="tier-price">' + priceText + '</div>')
+        + '<div class="tier-price">' + (t.priceCRC === 0 ? 'Gratis' : formatCRC(t.priceCRC)) + '</div>'
+        + '<div class="tier-price-usd">' + (t.priceCRC === 0 ? '' : formatUSD(t.priceCRC) + ' USD') + '</div>'
+        + '<div class="tier-cta">SELECT <span class="tier-arrow">→</span></div>'
         + '</div>';
     }).join("");
   var firstAvail = ev.tiers.find(function(t){ return !t.soldout && (t.capacity - t.sold) > 0; });
