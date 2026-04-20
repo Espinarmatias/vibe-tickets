@@ -520,24 +520,28 @@ function updateCardCountdowns() {
   var now = new Date().getTime();
   Object.keys(eventDates).forEach(function(key) {
     var diff = eventDates[key].getTime() - now;
-    var dEl  = document.getElementById('ev-cd-' + key + '-d');
-    var hEl  = document.getElementById('ev-cd-' + key + '-h');
-    var mEl  = document.getElementById('ev-cd-' + key + '-m');
-    var sEl  = document.getElementById('ev-cd-' + key + '-s');
-    if (!dEl || !hEl || !mEl || !sEl) return;
+    var dEls = document.querySelectorAll('[data-cd="' + key + '-d"]');
+    var hEls = document.querySelectorAll('[data-cd="' + key + '-h"]');
+    var mEls = document.querySelectorAll('[data-cd="' + key + '-m"]');
+    var sEls = document.querySelectorAll('[data-cd="' + key + '-s"]');
+    if (!dEls.length) return;
+    var dVal, hVal, mVal, sVal;
     if (diff <= 0) {
-      dEl.textContent = '00'; hEl.textContent = '00';
-      mEl.textContent = '00'; sEl.textContent = '00';
-      return;
+      dVal = hVal = mVal = sVal = '00';
+    } else {
+      var d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      var h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      var s = Math.floor((diff % (1000 * 60)) / 1000);
+      dVal = String(d).padStart(2, '0');
+      hVal = String(h).padStart(2, '0');
+      mVal = String(m).padStart(2, '0');
+      sVal = String(s).padStart(2, '0');
     }
-    var d = Math.floor(diff / (1000 * 60 * 60 * 24));
-    var h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    var s = Math.floor((diff % (1000 * 60)) / 1000);
-    dEl.textContent = String(d).padStart(2, '0');
-    hEl.textContent = String(h).padStart(2, '0');
-    mEl.textContent = String(m).padStart(2, '0');
-    sEl.textContent = String(s).padStart(2, '0');
+    dEls.forEach(function(el){ el.textContent = dVal; });
+    hEls.forEach(function(el){ el.textContent = hVal; });
+    mEls.forEach(function(el){ el.textContent = mVal; });
+    sEls.forEach(function(el){ el.textContent = sVal; });
   });
 }
 setInterval(updateCardCountdowns, 1000);
