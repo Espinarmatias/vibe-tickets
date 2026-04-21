@@ -271,8 +271,22 @@ function onAttendeeBlur() {
 
 // ─── PAGES ───────────────────────────────────────────────────────
 function goPage(p) {
-  document.querySelectorAll(".page").forEach(function(x){ x.classList.remove("active"); });
-  document.getElementById("pg-" + p).classList.add("active");
+  var targetEl = document.getElementById('pg-' + p);
+
+  document.querySelectorAll('.page').forEach(function(x) { x.classList.remove('active'); });
+
+  if (!targetEl) {
+    // Unknown page → 404
+    var p404 = document.getElementById('pg-404');
+    if (p404) p404.classList.add('active');
+    var urlPath = document.getElementById('p404-url-path');
+    if (urlPath) urlPath.textContent = '/' + p;
+    window.scrollTo(0, 0);
+    initFadeIns();
+    return;
+  }
+
+  targetEl.classList.add('active');
   window.scrollTo(0, 0);
   initFadeIns();
   if (p === 'my-tickets') renderMyTickets();
@@ -1107,18 +1121,105 @@ function selectCurrency(type) {
 
 
 // ─── MENU ─────────────────────────────────────────────────────────
-function toggleMenu() {
-  var d = document.getElementById('menu-drawer');
-  var o = document.getElementById('menu-overlay');
-  if (d) d.classList.toggle('open');
-  if (o) o.classList.toggle('show');
+function openMenu() {
+  var drawer   = document.getElementById('mobile-drawer');
+  var backdrop = document.getElementById('mobile-drawer-backdrop');
+  if (drawer)   { drawer.classList.add('open');   drawer.removeAttribute('aria-hidden'); }
+  if (backdrop) backdrop.classList.add('open');
+  document.body.classList.add('drawer-open');
+  renderMobileDrawer();
 }
 
 function closeMenu() {
-  var d = document.getElementById('menu-drawer');
-  var o = document.getElementById('menu-overlay');
-  if (d) d.classList.remove('open');
-  if (o) o.classList.remove('show');
+  var drawer   = document.getElementById('mobile-drawer');
+  var backdrop = document.getElementById('mobile-drawer-backdrop');
+  if (drawer)   { drawer.classList.remove('open');  drawer.setAttribute('aria-hidden', 'true'); }
+  if (backdrop) backdrop.classList.remove('open');
+  document.body.classList.remove('drawer-open');
+}
+
+function renderMobileDrawer() {
+  var user        = authCurrentUser();
+  var userSection = document.getElementById('md-user-section');
+  var nav         = document.getElementById('md-nav');
+  var footer      = document.getElementById('md-footer');
+  if (!userSection || !nav || !footer) return;
+
+  // User section
+  if (user) {
+    var initial = (user.firstName || user.email || 'U').charAt(0).toUpperCase();
+    userSection.innerHTML =
+      '<div class="md-user-card">' +
+        '<div class="md-user-avatar">' + initial + '</div>' +
+        '<div class="md-user-info">' +
+          '<div class="md-user-name">' + escapeHtml(user.fullName || user.firstName || 'User') + '</div>' +
+          '<div class="md-user-email">' + escapeHtml(user.email) + '</div>' +
+        '</div>' +
+      '</div>';
+  } else {
+    userSection.innerHTML =
+      '<div class="md-auth-prompt">' +
+        '<button class="md-auth-prompt-btn" onclick="closeMenu(); goPage(\'login\');">LOG IN</button>' +
+        '<button class="md-auth-prompt-btn md-auth-prompt-btn-secondary" onclick="closeMenu(); goPage(\'login\');">CREATE ACCOUNT</button>' +
+      '</div>';
+  }
+
+  // Nav sections
+  var ticketCount = userTickets.length;
+  var ticketBadge = ticketCount > 0 ? '<span class="md-link-badge">' + ticketCount + '</span>' : '';
+
+  nav.innerHTML =
+    '<div class="md-section">' +
+      '<div class="md-section-eyebrow">DISCOVER</div>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'home\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg></span>' +
+        '<span class="md-link-text">Browse Events</span>' +
+      '</button>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'home\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg></span>' +
+        '<span class="md-link-text">Upcoming</span>' +
+      '</button>' +
+    '</div>' +
+
+    (user ?
+    '<div class="md-section">' +
+      '<div class="md-section-eyebrow">YOUR ACCOUNT</div>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'my-tickets\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><circle cx="12" cy="14" r="2"/></svg></span>' +
+        '<span class="md-link-text">My Tickets</span>' +
+        ticketBadge +
+      '</button>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'account\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span>' +
+        '<span class="md-link-text">Account</span>' +
+      '</button>' +
+    '</div>'
+    : '') +
+
+    '<div class="md-section">' +
+      '<div class="md-section-eyebrow">ORGANIZERS</div>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'organizer\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg></span>' +
+        '<span class="md-link-text">List Your Event</span>' +
+      '</button>' +
+    '</div>';
+
+  // Footer
+  var logoutBtn = user
+    ? '<button class="md-logout" onclick="handleMobileLogout()">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 17l5-5-5-5M21 12H9M12 21H5a2 2 0 01-2-2V5a2 2 0 012-2h7"/></svg>' +
+        '<span>Log out</span>' +
+      '</button>'
+    : '';
+
+  footer.innerHTML =
+    '<button class="md-cta-btn" onclick="closeMenu(); goPage(\'home\');">BUY TICKETS</button>' +
+    logoutBtn;
+}
+
+function handleMobileLogout() {
+  closeMenu();
+  authLogout();
 }
 
 

@@ -35,63 +35,40 @@
   <div class="nav-right">
     <button class="nav-btn-primary" style="background:transparent;border:2px solid var(--green);color:var(--green);" onclick="goPage('organizer')">LIST YOUR EVENT</button>
     <button class="nav-btn-primary" id="nav-buy-tickets-btn" onclick="goPage('home');setTimeout(function(){var s=document.querySelector('#events-section,.events-section,#all-events');if(s)s.scrollIntoView({behavior:'smooth'});},150)">BUY TICKETS</button>
-    <button class="nav-hamburger" onclick="toggleMenu()" id="nav-hamburger" aria-label="Menu">
+    <button class="nav-hamburger" onclick="openMenu()" id="nav-hamburger" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
-<!-- ════ MENU DRAWER ════ -->
-<div class="menu-overlay" id="menu-overlay" onclick="closeMenu()"></div>
-<div class="menu-drawer" id="menu-drawer">
-  <div class="menu-drawer-header">
-    <div class="menu-user-avatar" id="menu-avatar">ME</div>
-    <div>
-      <div class="menu-user-name" id="menu-username">Guest</div>
-      <div class="menu-user-email" id="menu-useremail">Sign in to view your tickets</div>
+<!-- ════ MOBILE DRAWER ════ -->
+<aside class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+
+  <div class="md-header">
+    <div class="md-logo">
+      <div class="md-logo-dot"></div>
+      <span class="md-logo-text">VIBE.</span>
     </div>
-    <button class="menu-close" onclick="closeMenu()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <button class="md-close" onclick="closeMenu()" aria-label="Close menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
   </div>
-  <div class="menu-items">
-    <div class="menu-item" onclick="closeMenu();goPage('home')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Home
-    </div>
-    <div class="menu-item" onclick="closeMenu();goPage('home');setTimeout(function(){document.getElementById('events-section').scrollIntoView({behavior:'smooth'});},150)">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      Events
-    </div>
-    <div class="menu-item" onclick="closeMenu();goPage('my-tickets')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-      My Tickets
-      <span class="menu-badge" id="menu-ticket-badge" style="display:none">0</span>
-    </div>
-    <div class="menu-item" onclick="closeMenu();openSupportChat()">
-      <svg width="15" height="15" viewBox="0 0 40 40" fill="none"><path d="M8 22v-4C8 13.373 13.373 8 20 8s12 5.373 12 12v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><rect x="5" y="20" width="6" height="10" rx="3" fill="currentColor"/><rect x="29" y="20" width="6" height="10" rx="3" fill="currentColor"/><path d="M35 30v2a4 4 0 01-4 4h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="27" cy="36" r="2" fill="currentColor"/></svg>
-      Support
-    </div>
-    <div class="menu-sep"></div>
-    <div class="menu-item" onclick="closeMenu();goPage('terms')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      Terms & Conditions
-    </div>
-    <div class="menu-item" onclick="closeMenu();goPage('privacy')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Data Privacy
-    </div>
-    <div class="menu-sep"></div>
-    <div class="menu-item" onclick="closeMenu();goPage('organizer')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      List Your Event
-    </div>
-    <div class="menu-item menu-item-green" id="menu-auth-btn" onclick="closeMenu();goPage('login')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-      Log In
-    </div>
+
+  <div class="md-user-section" id="md-user-section">
+    <!-- Rendered by renderMobileDrawer() -->
   </div>
-</div>
+
+  <nav class="md-nav" id="md-nav">
+    <!-- Rendered by renderMobileDrawer() -->
+  </nav>
+
+  <div class="md-footer" id="md-footer">
+    <!-- Rendered by renderMobileDrawer() -->
+  </div>
+
+</aside>
+
+<div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop" onclick="closeMenu()"></div>
 
 
 <!-- ════════════ PAGES ════════════ -->
@@ -292,42 +269,63 @@
   </section>
 
   <!-- FOOTER -->
-  <footer>
-    <div class="footer-top">
-      <div class="footer-brand">
-        <img src="public/images/logo.jpg" alt="VIBE." loading="lazy" decoding="async"/>
-        <p class="footer-brand-sub">The #1 ticket platform in Costa Rica. Parties, concerts, and unique experiences — instant secure payments.</p>
+  <footer class="site-footer">
+    <div class="footer-container">
+
+      <div class="footer-grid">
+
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="footer-logo-dot"></div>
+            <span class="footer-logo-text">VIBE.</span>
+          </div>
+          <p class="footer-tagline">The #1 ticketing platform in Costa Rica. Built for live events, concerts, and the culture that matters.</p>
+          <div class="footer-socials">
+            <a href="https://www.linkedin.com/company/vibeticketscr" class="footer-social" aria-label="LinkedIn" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/vibeticketscr" class="footer-social" aria-label="Instagram" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.849.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.849.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">EVENTS</div>
+          <a href="#" class="footer-link" onclick="goPage('home'); return false;">Browse Events</a>
+          <a href="#" class="footer-link" onclick="goPage('home'); return false;">Upcoming</a>
+          <a href="#" class="footer-link">Past Events</a>
+          <a href="#" class="footer-link">Categories</a>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">COMPANY</div>
+          <a href="#" class="footer-link">About</a>
+          <a href="#" class="footer-link" onclick="goPage('organizer'); return false;">List Your Event</a>
+          <a href="#" class="footer-link">Careers</a>
+          <a href="#" class="footer-link">Contact</a>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col-title">SUPPORT</div>
+          <a href="#" class="footer-link">Help Center</a>
+          <a href="#" class="footer-link">Refunds</a>
+          <a href="#" class="footer-link" onclick="goPage('terms'); return false;">Terms of Use</a>
+          <a href="#" class="footer-link" onclick="goPage('privacy'); return false;">Privacy Policy</a>
+        </div>
+
       </div>
-      <div>
-        <div class="footer-col-title">Platform</div>
-        <div class="footer-links">
-          <a href="#" onclick="event.preventDefault();goPage('home');setTimeout(function(){document.getElementById('events-section').scrollIntoView({behavior:'smooth'});},150)">Browse Events</a>
-          <a href="#" onclick="event.preventDefault();goPage('my-tickets')">My Tickets</a>
-          <a href="#" onclick="event.preventDefault();goPage('organizer')">For Organizers</a>
-          <a href="#">How it works</a>
+
+      <div class="footer-bottom">
+        <div class="footer-copyright">© 2026 VIBE Tickets CR · San José, Costa Rica</div>
+        <div class="footer-lang">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          <button class="footer-lang-btn footer-lang-btn--active" type="button">English</button>
+          <span class="footer-lang-sep">|</span>
+          <button class="footer-lang-btn" type="button">Español</button>
         </div>
       </div>
-      <div>
-        <div class="footer-col-title">Support</div>
-        <div class="footer-links">
-          <a href="#">Help Center</a>
-          <a href="#">Contact</a>
-          <a href="#">Refunds</a>
-          <a href="#">Security</a>
-        </div>
-      </div>
-      <div>
-        <div class="footer-col-title">Legal</div>
-        <div class="footer-links">
-          <a href="#" onclick="event.preventDefault();goPage('privacy')">Privacy Policy</a>
-          <a href="#" onclick="event.preventDefault();goPage('terms')">Terms</a>
-          <a href="#">Cookies</a>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span class="footer-copy">© 2026 VIBE. CR · vibeticketscr.com</span>
-      <span class="footer-powered">Powered by <span>OnvoPay</span> · PCI DSS Compliant</span>
+
     </div>
   </footer>
 </div>
@@ -1107,6 +1105,33 @@
     </div>
   </div>
 </div>
+
+<!-- ════ 404 PAGE ════ -->
+<div class="page" id="pg-404">
+  <div class="p404-container">
+
+    <div class="p404-eyebrow">
+      <span class="p404-dot">●</span> ERROR 404
+    </div>
+
+    <h1 class="p404-title">
+      <span class="p404-title-off">OFF</span><span class="p404-title-beat">BEAT.</span>
+    </h1>
+
+    <p class="p404-description">This page doesn't exist — or got lost in the soundcheck. Let's get you back to the action.</p>
+
+    <div class="p404-actions">
+      <button class="p404-btn p404-btn-primary" onclick="goPage('home')">BROWSE EVENTS</button>
+      <button class="p404-btn p404-btn-secondary" onclick="goPage('home')">GO HOME</button>
+    </div>
+
+    <div class="p404-url">
+      URL: <span class="p404-url-path" id="p404-url-path">/lost</span>
+    </div>
+
+  </div>
+</div>
+
 
 <!-- ════ CUSTOMER SUPPORT WIDGET ════ -->
 <button class="support-fab" id="support-fab" onclick="toggleSupportPanel()" title="Soporte VIBE.">
