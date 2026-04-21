@@ -14,6 +14,7 @@ var currentTier    = null;
 var discountApplied = false;
 var discountPct    = 0;
 var loginIsRegister = true;
+var attendeeData   = []; // [{ name:'', email:'' }, …] — one entry per ticket
 
 var USD_RATE = 540; // colones per dollar — update when rate changes
 
@@ -22,6 +23,87 @@ function formatCRC(amount) {
 }
 function formatUSD(amountCRC) {
   return '~$' + Math.round(amountCRC / USD_RATE);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+
+// ─── ATTENDEE FIELDS ─────────────────────────────────────────────
+function renderAttendeeFields() {
+  var list = document.getElementById('attendee-list');
+  if (!list) return;
+
+  var tierName  = currentTier ? currentTier.name : 'GENERAL';
+  var tierPrice = currentTier ? currentTier.priceCRC : 0;
+
+  // Sync attendeeData length to qty (preserve existing entries)
+  while (attendeeData.length < qty)  { attendeeData.push({ name: '', email: '' }); }
+  while (attendeeData.length > qty)  { attendeeData.pop(); }
+
+  var html = '';
+  for (var i = 0; i < qty; i++) {
+    var a = attendeeData[i];
+    html +=
+      '<div class="attendee-ticket">' +
+        '<div class="attendee-ticket-header">' +
+          '<div class="attendee-ticket-label">TICKET ' + (i + 1) + ' · ' + tierName + '</div>' +
+          '<div class="attendee-ticket-price">' + formatCRC(tierPrice) + '</div>' +
+        '</div>' +
+        '<div class="attendee-fields">' +
+          '<div>' +
+            '<label class="attendee-field-label" for="att-name-' + i + '">FULL NAME</label>' +
+            '<input type="text" class="attendee-input" id="att-name-' + i + '" ' +
+                   'value="' + escapeHtml(a.name) + '" placeholder="Full name" ' +
+                   'autocomplete="name" ' +
+                   'oninput="updateAttendee(' + i + ',\'name\',this.value)" ' +
+                   'onchange="updateAttendee(' + i + ',\'name\',this.value)"/>' +
+          '</div>' +
+          '<div>' +
+            '<label class="attendee-field-label" for="att-email-' + i + '">EMAIL</label>' +
+            '<input type="email" class="attendee-input" id="att-email-' + i + '" ' +
+                   'value="' + escapeHtml(a.email) + '" placeholder="email@example.com" ' +
+                   'autocomplete="email" ' +
+                   'oninput="updateAttendee(' + i + ',\'email\',this.value)" ' +
+                   'onchange="updateAttendee(' + i + ',\'email\',this.value)"/>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+  list.innerHTML = html;
+  validateAttendees();
+}
+
+function updateAttendee(index, field, value) {
+  if (!attendeeData[index]) attendeeData[index] = { name: '', email: '' };
+  attendeeData[index][field] = value.trim();
+  validateAttendees();
+}
+
+function validateAttendees() {
+  var emailRe  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var allValid = true;
+
+  for (var i = 0; i < qty; i++) {
+    var a = attendeeData[i] || { name: '', email: '' };
+    if (!a.name || !a.email || !emailRe.test(a.email)) {
+      allValid = false;
+      break;
+    }
+  }
+
+  var warning = document.getElementById('attendee-warning');
+  if (warning) warning.classList.toggle('attendee-warning--visible', !allValid);
+
+  var btn = document.getElementById('ed-buy-btn');
+  if (btn) {
+    btn.disabled = !allValid;
+    btn.classList.toggle('btn-disabled', !allValid);
+  }
+
+  return allValid;
 }
 
 
@@ -89,6 +171,7 @@ function openCheckout(evKey) {
   qty = 1;
   payM = "card";
   currentTier = null;
+  attendeeData = [];
   goPage("event-detail");
   updWidget();
   var firstAvail = EVENTS[currentEvent].tiers.find(function(t){ return !t.soldout && (t.capacity - t.sold) > 0; });
@@ -108,6 +191,7 @@ function selectTier(tierId) {
     el.classList.toggle('selected', el.dataset.tierId === tierId);
   });
   updTotals();
+  renderAttendeeFields();
 }
 
 function updTotals() {
@@ -196,6 +280,7 @@ function chQ(d) {
   var qEl = document.getElementById("ed-q");
   if (qEl) qEl.textContent = qty;
   updTotals();
+  renderAttendeeFields();
 }
 
 
@@ -212,6 +297,11 @@ function selPay(m, el) {
 
 // ─── PAY ──────────────────────────────────────────────────────────
 function doPay() {
+  if (!validateAttendees()) {
+    var warning = document.getElementById('attendee-warning');
+    if (warning) warning.classList.add('attendee-warning--visible');
+    return;
+  }
   var btn = document.getElementById("ed-buy-btn");
   if (!btn) return;
   btn.textContent = "⏳ Processing...";
@@ -270,6 +360,7 @@ function addPurchaseToUserTickets() {
   var ev = EVENTS[currentEvent];
   var eventImage = ev.isMansita ? MANSITA_B64 : RAWDEO_B64;
   for (var i = 0; i < qty; i++) {
+    var a = attendeeData[i] || { name: 'Guest', email: '' };
     userTickets.push({
       ticketId: 'TKT-' + Date.now() + '-' + i,
       eventId: currentEvent,
@@ -280,11 +371,13 @@ function addPurchaseToUserTickets() {
       eventImage: eventImage,
       tierId: currentTier ? currentTier.id : 'general',
       tierName: currentTier ? currentTier.name : 'GENERAL',
-      attendeeName: 'Guest',
+      attendeeName: a.name || 'Guest',
+      attendeeEmail: a.email || '',
       priceCRC: currentTier ? currentTier.priceCRC : 0,
       purchasedAt: new Date().toISOString()
     });
   }
+  attendeeData = [];
 }
 
 function renderMyTickets() {
