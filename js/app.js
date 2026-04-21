@@ -1122,6 +1122,7 @@ function selectCurrency(type) {
 
 // ─── MENU ─────────────────────────────────────────────────────────
 function openMenu() {
+  if (window.innerWidth > 960) return; // desktop: drawer is hidden, do nothing
   var drawer   = document.getElementById('mobile-drawer');
   var backdrop = document.getElementById('mobile-drawer-backdrop');
   if (drawer)   { drawer.classList.add('open');   drawer.removeAttribute('aria-hidden'); }
