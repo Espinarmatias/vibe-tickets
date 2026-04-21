@@ -15,6 +15,7 @@ var discountApplied = false;
 var discountPct    = 0;
 var loginIsRegister = true;
 var attendeeData   = []; // [{ name:'', email:'' }, …] — one entry per ticket
+var attendeeValidationTriggered = false; // warning only shows after first pay attempt or blur
 
 var USD_RATE = 540; // colones per dollar — update when rate changes
 
@@ -59,7 +60,8 @@ function renderAttendeeFields() {
                    'value="' + escapeHtml(a.name) + '" placeholder="Full name" ' +
                    'autocomplete="name" ' +
                    'oninput="updateAttendee(' + i + ',\'name\',this.value)" ' +
-                   'onchange="updateAttendee(' + i + ',\'name\',this.value)"/>' +
+                   'onchange="updateAttendee(' + i + ',\'name\',this.value)" ' +
+                   'onblur="onAttendeeBlur()"/>' +
           '</div>' +
           '<div>' +
             '<label class="attendee-field-label" for="att-email-' + i + '">EMAIL</label>' +
@@ -67,7 +69,8 @@ function renderAttendeeFields() {
                    'value="' + escapeHtml(a.email) + '" placeholder="email@example.com" ' +
                    'autocomplete="email" ' +
                    'oninput="updateAttendee(' + i + ',\'email\',this.value)" ' +
-                   'onchange="updateAttendee(' + i + ',\'email\',this.value)"/>' +
+                   'onchange="updateAttendee(' + i + ',\'email\',this.value)" ' +
+                   'onblur="onAttendeeBlur()"/>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -94,8 +97,15 @@ function validateAttendees() {
     }
   }
 
+  // Warning only shows after user has interacted (blur) or clicked pay
   var warning = document.getElementById('attendee-warning');
-  if (warning) warning.classList.toggle('attendee-warning--visible', !allValid);
+  if (warning) {
+    if (attendeeValidationTriggered && !allValid) {
+      warning.classList.add('attendee-warning--visible');
+    } else {
+      warning.classList.remove('attendee-warning--visible');
+    }
+  }
 
   var btn = document.getElementById('ed-buy-btn');
   if (btn) {
@@ -104,6 +114,18 @@ function validateAttendees() {
   }
 
   return allValid;
+}
+
+function onAttendeeBlur() {
+  for (var i = 0; i < qty; i++) {
+    var a = attendeeData[i] || { name: '', email: '' };
+    // If user typed something but left a field incomplete, trigger warning
+    if ((a.name && !a.email) || (!a.name && a.email)) {
+      attendeeValidationTriggered = true;
+      break;
+    }
+  }
+  validateAttendees();
 }
 
 
@@ -172,6 +194,7 @@ function openCheckout(evKey) {
   payM = "card";
   currentTier = null;
   attendeeData = [];
+  attendeeValidationTriggered = false;
   goPage("event-detail");
   updWidget();
   var firstAvail = EVENTS[currentEvent].tiers.find(function(t){ return !t.soldout && (t.capacity - t.sold) > 0; });
@@ -285,21 +308,89 @@ function chQ(d) {
 
 
 // ─── PAYMENT METHOD ───────────────────────────────────────────────
-function selPay(m, el) {
+function selPay(m) {
   payM = m;
   document.querySelectorAll(".pay-opt").forEach(function(o){ o.classList.remove("on"); });
-  el.classList.add("on");
+  var target = document.querySelector('.pay-opt[data-pay="' + m + '"]');
+  if (target) target.classList.add("on");
   document.querySelectorAll(".pay-panel").forEach(function(p){ p.classList.remove("show"); });
   document.getElementById("pp-" + m).classList.add("show");
   updTotals();
 }
 
 
+// ─── CARD BRAND DETECTION ─────────────────────────────────────────
+function detectCardBrand(number) {
+  var clean = number.replace(/\s+/g, '');
+  if (!clean) return null;
+  if (/^3[47]/.test(clean)) return 'amex';
+  if (/^4/.test(clean)) return 'visa';
+  if (/^5[1-5]/.test(clean)) return 'mc';
+  if (/^2(2(2[1-9]|[3-9]\d)|[3-6]\d{2}|7([01]\d|20))/.test(clean)) return 'mc';
+  return null;
+}
+
+var BRAND_SVG = {
+  visa: '<svg width="36" height="24" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1f71"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" font-style="italic">VISA</text></svg>',
+  mc:   '<svg width="36" height="24" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1a1a"/><circle cx="19" cy="16" r="10" fill="#eb001b"/><circle cx="29" cy="16" r="10" fill="#f79e1b" fill-opacity="0.85"/></svg>',
+  amex: '<svg width="36" height="24" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#006fcf"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle">AMEX</text></svg>'
+};
+
+var BRAND_MULTI_SVG =
+  '<div class="card-brand-multi">' +
+  '<div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1f71"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" font-style="italic">VISA</text></svg></div>' +
+  '<div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1a1a"/><circle cx="19" cy="16" r="9" fill="#eb001b"/><circle cx="29" cy="16" r="9" fill="#f79e1b" fill-opacity="0.85"/></svg></div>' +
+  '<div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#006fcf"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle">AMEX</text></svg></div>' +
+  '</div>';
+
+function formatCardNumber(value) {
+  var clean = value.replace(/\D/g, '');
+  var brand = detectCardBrand(clean);
+  if (brand === 'amex') {
+    // 4-6-5 format
+    var p1 = clean.substring(0, 4);
+    var p2 = clean.substring(4, 10);
+    var p3 = clean.substring(10, 15);
+    return [p1, p2, p3].filter(Boolean).join(' ');
+  }
+  // 4-4-4-4
+  return clean.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+}
+
+function handleCardNumberInput(input) {
+  var cursor = input.selectionStart;
+  var prevLen = input.value.length;
+  input.value = formatCardNumber(input.value);
+  // Adjust cursor for inserted spaces
+  var newLen = input.value.length;
+  input.setSelectionRange(cursor + (newLen - prevLen), cursor + (newLen - prevLen));
+
+  var brand = detectCardBrand(input.value);
+  var display = document.getElementById('card-brand-display');
+  if (!display) return;
+  if (brand) {
+    display.innerHTML = '<div class="card-brand-detected">' + BRAND_SVG[brand] + '</div>';
+  } else {
+    display.innerHTML = BRAND_MULTI_SVG;
+  }
+}
+
+function handleExpiryInput(input) {
+  var clean = input.value.replace(/\D/g, '');
+  if (clean.length >= 2) {
+    input.value = clean.substring(0, 2) + ' / ' + clean.substring(2, 4);
+  } else {
+    input.value = clean;
+  }
+}
+
+
 // ─── PAY ──────────────────────────────────────────────────────────
 function doPay() {
+  attendeeValidationTriggered = true;
   if (!validateAttendees()) {
     var warning = document.getElementById('attendee-warning');
-    if (warning) warning.classList.add('attendee-warning--visible');
+    if (warning) warning.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
   var btn = document.getElementById("ed-buy-btn");
