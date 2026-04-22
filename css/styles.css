@@ -344,15 +344,16 @@ section{padding-block:var(--section-pad-desktop);padding-inline:64px;}
 .ev-card-placeholder{display:none;}
 
 /* ─── BUY IN 2 MINUTES (white break section) ─── */
-.buy-in-2min{background:#ffffff;color:#141414;}
+.buy-in-2min{background:#ffffff;color:#141414;padding-block:clamp(80px,12vh,140px);}
 .buy-in-2min-inner{max-width:1200px;margin:0 auto;}
-.buy-in-2min-eyebrow{color:#6ab04c;font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:12px;text-transform:uppercase;}
-.buy-in-2min-title{color:#141414;font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,5vw,52px);font-weight:500;line-height:.95;letter-spacing:-1.5px;margin:0 0 48px;text-transform:uppercase;}
-.buy-in-2min-title .italic-sage{color:#6ab04c;font-style:italic;font-weight:500;}
+.buy-in-2min-eyebrow{color:#6ab04c;font-size:13px;letter-spacing:3px;font-weight:700;margin-bottom:14px;text-transform:uppercase;}
+.buy-in-2min-title{color:#141414;font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,6.5vw,72px);font-weight:500;line-height:.95;letter-spacing:-1.5px;margin:0 0 56px;text-transform:uppercase;}
+.buy-in-2min-title .italic-sage{color:#6ab04c;font-style:italic;font-family:'Barlow Condensed',sans-serif;font-weight:500;}
 .buy-in-2min-steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
-.buy-in-2min-icon{width:60px;height:60px;border:0.5px solid rgba(106,176,76,.5);border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(106,176,76,.04);margin-bottom:20px;}
-.buy-in-2min-step-title{color:#141414;font-size:17px;font-weight:500;margin:0 0 8px;letter-spacing:-.2px;}
-.buy-in-2min-step-desc{color:rgba(20,20,20,.6);font-size:13px;line-height:1.6;margin:0;}
+.buy-in-2min-icon{width:64px;height:64px;border:0.5px solid rgba(106,176,76,.5);border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(106,176,76,.04);margin-bottom:24px;}
+.buy-in-2min-icon svg{width:30px;height:30px;}
+.buy-in-2min-step-title{color:#141414;font-size:19px;font-weight:500;margin:0 0 10px;letter-spacing:-.2px;}
+.buy-in-2min-step-desc{color:rgba(20,20,20,.6);font-size:14px;line-height:1.6;margin:0;}
 .buy-in-2min-header,.buy-in-2min-step{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1);}
 .buy-in-2min.in-view .buy-in-2min-header{opacity:1;transform:translateY(0);}
 .buy-in-2min.in-view .buy-in-2min-step{opacity:1;transform:translateY(0);}
@@ -363,13 +364,14 @@ section{padding-block:var(--section-pad-desktop);padding-inline:64px;}
   .buy-in-2min-header,.buy-in-2min-step{opacity:1;transform:none;transition:none;}
 }
 @media(max-width:900px){
+  .buy-in-2min{padding-block:clamp(60px,10vh,100px);}
   .buy-in-2min-steps{grid-template-columns:1fr;gap:20px;}
-  .buy-in-2min-step{display:grid;grid-template-columns:40px 1fr;column-gap:14px;row-gap:3px;align-items:start;}
-  .buy-in-2min-icon{width:40px;height:40px;border-radius:10px;margin-bottom:0;grid-row:span 2;}
-  .buy-in-2min-icon svg{width:18px;height:18px;}
-  .buy-in-2min-step-title{font-size:14px;margin-bottom:0;}
-  .buy-in-2min-step-desc{font-size:11px;}
-  .buy-in-2min-title{margin-bottom:28px;}
+  .buy-in-2min-step{display:grid;grid-template-columns:44px 1fr;column-gap:14px;row-gap:4px;align-items:start;}
+  .buy-in-2min-icon{width:44px;height:44px;border-radius:11px;margin-bottom:0;grid-row:span 2;}
+  .buy-in-2min-icon svg{width:20px;height:20px;}
+  .buy-in-2min-step-title{font-size:16px;font-weight:500;margin-bottom:0;}
+  .buy-in-2min-step-desc{font-size:12px;}
+  .buy-in-2min-title{font-size:clamp(32px,9vw,48px);letter-spacing:-1px;margin-bottom:36px;}
 }
 
 /* ─── ORGANIZER CTA ─── */
