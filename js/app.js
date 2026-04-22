@@ -1122,7 +1122,6 @@ function selectCurrency(type) {
 
 // ─── MENU ─────────────────────────────────────────────────────────
 function openMenu() {
-  if (window.innerWidth > 960) return; // desktop: drawer is hidden, do nothing
   var drawer   = document.getElementById('mobile-drawer');
   var backdrop = document.getElementById('mobile-drawer-backdrop');
   if (drawer)   { drawer.classList.add('open');   drawer.removeAttribute('aria-hidden'); }
@@ -1170,10 +1169,11 @@ function renderMobileDrawer() {
   var ticketBadge = ticketCount > 0 ? '<span class="md-link-badge">' + ticketCount + '</span>' : '';
 
   nav.innerHTML =
+    // DISCOVER
     '<div class="md-section">' +
       '<div class="md-section-eyebrow">DISCOVER</div>' +
       '<button class="md-link" onclick="closeMenu(); goPage(\'home\');">' +
-        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg></span>' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>' +
         '<span class="md-link-text">Browse Events</span>' +
       '</button>' +
       '<button class="md-link" onclick="closeMenu(); goPage(\'home\');">' +
@@ -1182,6 +1182,7 @@ function renderMobileDrawer() {
       '</button>' +
     '</div>' +
 
+    // YOUR ACCOUNT (only if logged in)
     (user ?
     '<div class="md-section">' +
       '<div class="md-section-eyebrow">YOUR ACCOUNT</div>' +
@@ -1197,15 +1198,42 @@ function renderMobileDrawer() {
     '</div>'
     : '') +
 
+    // ORGANIZERS
     '<div class="md-section">' +
       '<div class="md-section-eyebrow">ORGANIZERS</div>' +
       '<button class="md-link" onclick="closeMenu(); goPage(\'organizer\');">' +
         '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg></span>' +
         '<span class="md-link-text">List Your Event</span>' +
       '</button>' +
+    '</div>' +
+
+    // SUPPORT
+    '<div class="md-section">' +
+      '<div class="md-section-eyebrow">SUPPORT</div>' +
+      '<button class="md-link" onclick="closeMenu(); openSupportWidget();">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 14v-3a9 9 0 0118 0v3"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"/></svg></span>' +
+        '<span class="md-link-text">Customer Support</span>' +
+      '</button>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'faq\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 3-3 3M12 17h.01"/></svg></span>' +
+        '<span class="md-link-text">FAQ</span>' +
+      '</button>' +
+    '</div>' +
+
+    // LEGAL
+    '<div class="md-section">' +
+      '<div class="md-section-eyebrow">LEGAL</div>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'terms\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>' +
+        '<span class="md-link-text">Terms &amp; Conditions</span>' +
+      '</button>' +
+      '<button class="md-link" onclick="closeMenu(); goPage(\'privacy\');">' +
+        '<span class="md-link-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>' +
+        '<span class="md-link-text">Privacy Policy</span>' +
+      '</button>' +
     '</div>';
 
-  // Footer
+  // Footer — only show if logged in (log out button); no BUY TICKETS
   var logoutBtn = user
     ? '<button class="md-logout" onclick="handleMobileLogout()">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 17l5-5-5-5M21 12H9M12 21H5a2 2 0 01-2-2V5a2 2 0 012-2h7"/></svg>' +
@@ -1213,9 +1241,12 @@ function renderMobileDrawer() {
       '</button>'
     : '';
 
-  footer.innerHTML =
-    '<button class="md-cta-btn" onclick="closeMenu(); goPage(\'home\');">BUY TICKETS</button>' +
-    logoutBtn;
+  if (logoutBtn) {
+    footer.style.display = '';
+    footer.innerHTML = logoutBtn;
+  } else {
+    footer.style.display = 'none';
+  }
 }
 
 function handleMobileLogout() {
@@ -1283,56 +1314,182 @@ document.addEventListener('DOMContentLoaded', renderAuthState);
 
 
 // ─── SUPPORT WIDGET ───────────────────────────────────────────────
-function openSupportChat() {
-  var p = document.getElementById('support-panel');
-  if (p) p.classList.add('show');
+var supportWidgetView = 'ai'; // 'ai' | 'human'
+
+function openSupportWidget() {
+  var w = document.getElementById('support-widget');
+  if (!w) return;
+  renderSupportWidget();
+  requestAnimationFrame(function() { w.classList.add('open'); });
+  document.addEventListener('keydown', _swEscHandler);
 }
 
-function toggleSupportPanel() {
-  var p = document.getElementById('support-panel');
-  if (p) p.classList.toggle('show');
+function closeSupportWidget() {
+  var w = document.getElementById('support-widget');
+  if (!w) return;
+  w.classList.remove('open');
+  document.removeEventListener('keydown', _swEscHandler);
 }
 
-function supportSelect(msg) {
-  addSupportMsg(msg, true);
-  document.getElementById('support-options').style.display    = 'none';
-  document.getElementById('support-input-row').style.display  = 'flex';
+function _swEscHandler(e) {
+  if (e.key === 'Escape') closeSupportWidget();
+}
+
+function switchSupportView(view) {
+  supportWidgetView = view;
+  renderSupportWidget();
+}
+
+function renderSupportWidget() {
+  var inner = document.getElementById('sw-inner');
+  if (!inner) return;
+  var html =
+    '<div class="sw-header">' +
+      '<div class="sw-header-left">' +
+        '<div class="sw-status-dot"></div>' +
+        '<span class="sw-header-title">VIBE. Support</span>' +
+      '</div>' +
+      '<div class="sw-header-tabs">' +
+        '<button class="sw-tab' + (supportWidgetView === 'ai' ? ' active' : '') + '" onclick="switchSupportView(\'ai\')">AI Chat</button>' +
+        '<button class="sw-tab' + (supportWidgetView === 'human' ? ' active' : '') + '" onclick="switchSupportView(\'human\')">Human</button>' +
+      '</div>' +
+      '<button class="sw-close-btn" onclick="closeSupportWidget()" aria-label="Close">✕</button>' +
+    '</div>' +
+    '<div class="sw-body">' +
+      (supportWidgetView === 'ai' ? renderSupportAIView() : renderSupportHumanView()) +
+    '</div>';
+  inner.innerHTML = html;
+  // auto-focus input in AI view
+  if (supportWidgetView === 'ai') {
+    var inp = document.getElementById('sw-input');
+    if (inp) setTimeout(function() { inp.focus(); }, 80);
+  }
+}
+
+function renderSupportAIView() {
+  return (
+    '<div class="sw-chat-body" id="sw-chat-body">' +
+      '<div class="sw-msg sw-msg-bot">' +
+        '<div class="sw-msg-bubble">Hi! I\'m VIBE. Assistant. How can I help you today?</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="sw-quick-actions">' +
+      '<button class="sw-quick-btn" onclick="handleQuickAction(\'qr\')">Didn\'t get my QR</button>' +
+      '<button class="sw-quick-btn" onclick="handleQuickAction(\'payment\')">Payment issue</button>' +
+      '<button class="sw-quick-btn" onclick="handleQuickAction(\'cancel\')">Cancel purchase</button>' +
+      '<button class="sw-quick-btn" onclick="handleQuickAction(\'event\')">Event info</button>' +
+    '</div>' +
+    '<div class="sw-input-bar">' +
+      '<input id="sw-input" class="sw-input" type="text" placeholder="Type your question…" onkeydown="if(event.key===\'Enter\')sendSupportMessage()">' +
+      '<button class="sw-send-btn" onclick="sendSupportMessage()" aria-label="Send">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>' +
+      '</button>' +
+    '</div>'
+  );
+}
+
+function renderSupportHumanView() {
+  return (
+    '<div class="sw-human-body">' +
+      '<p class="sw-human-intro">Reach a real person on your preferred channel. Average response time: <strong>under 2 hours</strong>.</p>' +
+      '<div class="sw-contact-card" onclick="window.open(\'https://wa.me/50688888888\',\'_blank\')">' +
+        '<div class="sw-contact-icon sw-contact-icon--whatsapp">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.558 4.116 1.535 5.845L.057 23.522a.75.75 0 0 0 .92.92l5.733-1.498A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.96 0-3.797-.527-5.375-1.441l-.385-.229-3.993 1.043 1.066-3.9-.252-.4A9.956 9.956 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>' +
+        '</div>' +
+        '<div class="sw-contact-info">' +
+          '<div class="sw-contact-name">WhatsApp</div>' +
+          '<div class="sw-contact-sub">+506 8888-8888 · Mon–Sat 9am–7pm</div>' +
+        '</div>' +
+        '<svg class="sw-contact-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+      '</div>' +
+      '<div class="sw-contact-card" onclick="window.location.href=\'mailto:support@vibetickets.com\'">' +
+        '<div class="sw-contact-icon sw-contact-icon--email">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>' +
+        '</div>' +
+        '<div class="sw-contact-info">' +
+          '<div class="sw-contact-name">Email</div>' +
+          '<div class="sw-contact-sub">support@vibetickets.com</div>' +
+        '</div>' +
+        '<svg class="sw-contact-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+      '</div>' +
+      '<div class="sw-contact-card" onclick="goPage(\'faq\');closeSupportWidget()">' +
+        '<div class="sw-contact-icon sw-contact-icon--faq">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' +
+        '</div>' +
+        '<div class="sw-contact-info">' +
+          '<div class="sw-contact-name">FAQ</div>' +
+          '<div class="sw-contact-sub">Browse common questions</div>' +
+        '</div>' +
+        '<svg class="sw-contact-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function handleQuickAction(action) {
+  var chat = document.getElementById('sw-chat-body');
+  if (!chat) return;
+  var questions = {
+    qr:      'I didn\'t receive my QR code by email.',
+    payment: 'I have a payment issue.',
+    cancel:  'I want to cancel my purchase.',
+    event:   'I need information about an event.'
+  };
+  var answers = {
+    qr:      'Check your spam folder first. If it\'s not there, reply here with your order code (VB-XXXXXX) and we\'ll resend it right away.',
+    payment: 'Was the charge made but you didn\'t receive the ticket? Please share the transaction reference and we\'ll investigate.',
+    cancel:  'All sales are final per our T&C. If the event was cancelled by the organizer, refunds are processed automatically. Tell us more about your case.',
+    event:   'Which event are you asking about? Drop the name or date and I\'ll pull up the details for you.'
+  };
+  // append user bubble
+  var userDiv = document.createElement('div');
+  userDiv.className = 'sw-msg sw-msg-user';
+  userDiv.innerHTML = '<div class="sw-msg-bubble">' + questions[action] + '</div>';
+  chat.appendChild(userDiv);
+  chat.scrollTop = chat.scrollHeight;
+  // typing indicator
+  var typing = document.createElement('div');
+  typing.className = 'sw-msg sw-msg-bot sw-typing';
+  typing.innerHTML = '<div class="sw-msg-bubble sw-msg-typing-bubble"><span></span><span></span><span></span></div>';
+  chat.appendChild(typing);
+  chat.scrollTop = chat.scrollHeight;
   setTimeout(function() {
-    var replies = {
-      'I didn\'t receive my QR by email': 'Check your spam folder first. If it\'s not there, send us your order code (e.g. VB-XXXXXX) and we\'ll resend it right away.',
-      'Payment issue': 'Was the payment deducted from your account but you didn\'t receive the ticket? Send us the transaction code and we\'ll look into it.',
-      'I want to cancel my purchase': 'All sales are final per our T&C. If the event was cancelled by the organizer, we process the refund automatically. Can you tell us more about your case?'
-    };
-    var reply = replies[msg] || 'Got it! Leave us your question and we\'ll help you.';
-    addSupportMsg(reply, false);
-  }, 800);
+    chat.removeChild(typing);
+    var botDiv = document.createElement('div');
+    botDiv.className = 'sw-msg sw-msg-bot';
+    botDiv.innerHTML = '<div class="sw-msg-bubble">' + (answers[action] || 'Let me look into that for you.') + '</div>';
+    chat.appendChild(botDiv);
+    chat.scrollTop = chat.scrollHeight;
+  }, 900);
 }
 
-function addSupportMsg(text, isUser) {
-  var msgs = document.getElementById('support-messages');
-  var div  = document.createElement('div');
-  div.className = isUser ? 'support-user-msg' : 'support-msg';
-  div.innerHTML = '<div class="support-msg-text">' + text + '</div>';
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function sendSupportMsg() {
-  var input = document.getElementById('support-input');
-  var text  = input.value.trim();
+function sendSupportMessage() {
+  var inp  = document.getElementById('sw-input');
+  var chat = document.getElementById('sw-chat-body');
+  if (!inp || !chat) return;
+  var text = inp.value.trim();
   if (!text) return;
-  addSupportMsg(text, true);
-  input.value = '';
+  inp.value = '';
+  // user bubble
+  var userDiv = document.createElement('div');
+  userDiv.className = 'sw-msg sw-msg-user';
+  userDiv.innerHTML = '<div class="sw-msg-bubble">' + text + '</div>';
+  chat.appendChild(userDiv);
+  chat.scrollTop = chat.scrollHeight;
+  // typing indicator
+  var typing = document.createElement('div');
+  typing.className = 'sw-msg sw-msg-bot sw-typing';
+  typing.innerHTML = '<div class="sw-msg-bubble sw-msg-typing-bubble"><span></span><span></span><span></span></div>';
+  chat.appendChild(typing);
+  chat.scrollTop = chat.scrollHeight;
   setTimeout(function() {
-    addSupportMsg('Thanks for your message. A VIBE. agent will get back to you soon. You can also reach us directly on WhatsApp at +506 ' + VIBE_CONFIG.sinpeNumber + '.', false);
+    chat.removeChild(typing);
+    var botDiv = document.createElement('div');
+    botDiv.className = 'sw-msg sw-msg-bot';
+    botDiv.innerHTML = '<div class="sw-msg-bubble">Thanks for reaching out! Our team will follow up shortly. For faster help, switch to the <strong>Human</strong> tab.</div>';
+    chat.appendChild(botDiv);
+    chat.scrollTop = chat.scrollHeight;
   }, 1000);
-}
-
-function showEscalation() {
-  document.getElementById('support-options').style.display      = 'none';
-  document.getElementById('support-escalate').style.display     = 'flex';
-  document.getElementById('support-escalate').style.flexDirection = 'column';
-  document.getElementById('support-escalate').style.gap         = '8px';
 }
 
 

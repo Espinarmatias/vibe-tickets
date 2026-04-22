@@ -1106,6 +1106,34 @@
   </div>
 </div>
 
+<!-- ════ FAQ PAGE ════ -->
+<div class="page" id="pg-faq">
+  <div class="placeholder-container">
+    <div class="placeholder-eyebrow">● COMING SOON</div>
+    <h1 class="placeholder-title">Frequently Asked Questions</h1>
+    <p class="placeholder-description">This page will contain answers to common questions about buying tickets, refunds, attending events, and more.</p>
+    <p class="placeholder-subdescription">In the meantime, our support team is ready to help.</p>
+    <div class="placeholder-actions">
+      <button class="placeholder-btn placeholder-btn-primary" onclick="openSupportWidget()">CONTACT SUPPORT</button>
+      <button class="placeholder-btn placeholder-btn-secondary" onclick="goPage('home')">GO HOME</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ACCOUNT PAGE ════ -->
+<div class="page" id="pg-account">
+  <div class="placeholder-container">
+    <div class="placeholder-eyebrow">● COMING SOON</div>
+    <h1 class="placeholder-title">Account Settings</h1>
+    <p class="placeholder-description">Soon you'll be able to manage your profile, notification preferences, saved payment methods, and account security settings here.</p>
+    <p class="placeholder-subdescription">For now, you can view your tickets in "My Tickets" or contact support for any account-related questions.</p>
+    <div class="placeholder-actions">
+      <button class="placeholder-btn placeholder-btn-primary" onclick="goPage('my-tickets')">VIEW MY TICKETS</button>
+      <button class="placeholder-btn placeholder-btn-secondary" onclick="goPage('home')">GO HOME</button>
+    </div>
+  </div>
+</div>
+
 <!-- ════ 404 PAGE ════ -->
 <div class="page" id="pg-404">
   <div class="p404-container">
@@ -1134,66 +1162,16 @@
 
 
 <!-- ════ CUSTOMER SUPPORT WIDGET ════ -->
-<button class="support-fab" id="support-fab" onclick="toggleSupportPanel()" title="Soporte VIBE.">
-  <svg width="26" height="26" viewBox="0 0 40 40" fill="none">
-    <path d="M8 22v-4C8 13.373 13.373 8 20 8s12 5.373 12 12v4" stroke="#080808" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-    <rect x="5" y="20" width="6" height="10" rx="3" fill="#080808"/>
-    <rect x="29" y="20" width="6" height="10" rx="3" fill="#080808"/>
-    <path d="M35 30v2a4 4 0 01-4 4h-4" stroke="#080808" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-    <circle cx="27" cy="36" r="2" fill="#080808"/>
+<button class="support-fab" id="support-fab" onclick="openSupportWidget()" aria-label="Customer Support">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 14v-3a9 9 0 0118 0v3"/>
+    <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3v5zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3v5z"/>
   </svg>
 </button>
 
-<div class="support-panel" id="support-panel">
-  <div class="support-header">
-    <div class="support-avatar">
-      <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
-        <path d="M8 22v-4C8 13.373 13.373 8 20 8s12 5.373 12 12v4" stroke="#6ab04c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <rect x="5" y="20" width="6" height="10" rx="3" fill="#6ab04c"/>
-        <rect x="29" y="20" width="6" height="10" rx="3" fill="#6ab04c"/>
-        <path d="M35 30v2a4 4 0 01-4 4h-4" stroke="#6ab04c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <circle cx="27" cy="36" r="2" fill="#6ab04c"/>
-      </svg>
-    </div>
-    <div>
-      <div class="support-name">VIBE. Soporte</div>
-      <div class="support-status">Online</div>
-    </div>
-    <button class="support-close" onclick="toggleSupportPanel()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="support-messages" id="support-messages">
-    <div class="support-msg">
-      <div class="support-msg-text">Hi! How can I help you with your ticket today? 🎟️</div>
-    </div>
-  </div>
-  <div class="support-options" id="support-options">
-    <button class="support-opt" onclick="supportSelect('I didn\'t receive my QR by email')">I didn't receive my QR by email</button>
-    <button class="support-opt" onclick="supportSelect('Payment issue')">Payment issue</button>
-    <button class="support-opt" onclick="supportSelect('I want to cancel my purchase')">I want to cancel my purchase</button>
-    <button class="support-opt" onclick="showEscalation()">Talk to someone on the team</button>
-  </div>
-  <div class="support-input-row" id="support-input-row" style="display:none">
-    <input class="support-input" id="support-input" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendSupportMsg()"/>
-    <button class="support-send" onclick="sendSupportMsg()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-  <div class="support-escalate" id="support-escalate" style="display:none">
-    <div class="support-escalate-title">Contact us directly</div>
-    <a href="https://wa.me/50670198460" target="_blank" class="support-esc-btn support-esc-wa">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5.009L2 22l5.109-1.325A9.966 9.966 0 0012 22c5.523 0 10-4.477 10-10S17.522 2 11.999 2z"/></svg>
-      <span>WhatsApp Business<small>+506 7019-8460 · Quick response</small></span>
-    </a>
-    <a href="tel:+50670198460" class="support-esc-btn support-esc-tel">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-      <span>Call<small>+506 7019-8460</small></span>
-    </a>
-    <a href="/cdn-cgi/l/email-protection#cebda1bea1bcbaab8eb8a7acabbaa7ada5abbabde0adbc" class="support-esc-btn support-esc-email">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      <span>Email<small><span class="__cf_email__" data-cfemail="ff8c908f908d8b9abf89969d9a8b969c949a8b8cd19c8d">[email&#160;protected]</span></small></span>
-    </a>
+<div class="support-widget" id="support-widget" aria-hidden="true">
+  <div class="sw-inner" id="sw-inner">
+    <!-- Rendered by renderSupportWidget() -->
   </div>
 </div>
 
