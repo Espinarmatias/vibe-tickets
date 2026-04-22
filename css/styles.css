@@ -87,7 +87,6 @@ nav.nav-hidden{transform:translateY(-100%);}
 @media(max-width:480px){
   .events-grid{grid-template-columns:1fr;}
   .ev-card:first-child{grid-column:span 1;}
-  .how-grid{grid-template-columns:1fr;}
   .footer-top{grid-template-columns:1fr;gap:24px;}
 }
 
@@ -344,14 +343,34 @@ section{padding-block:var(--section-pad-desktop);padding-inline:64px;}
 .ev-card-content{display:none;}
 .ev-card-placeholder{display:none;}
 
-/* ─── HOW IT WORKS ─── */
-.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:64px;border:1px solid var(--border);border-radius:16px;overflow:hidden;}
-.how-step{padding:40px 32px;background:var(--bg2);transition:background .3s;position:relative;}
-.how-step:hover{background:var(--bg3);}
-.how-step::before{content:attr(data-num);font-family:'Barlow Condensed',sans-serif;font-size:80px;font-weight:900;color:rgba(57,255,20,.06);position:absolute;top:16px;right:20px;line-height:1;}
-.how-icon{font-size:28px;margin-bottom:20px;}
-.how-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.how-desc{font-size:13px;color:var(--gray);line-height:1.6;font-weight:300;}
+/* ─── BUY IN 2 MINUTES (white break section) ─── */
+.buy-in-2min{background:#ffffff;color:#141414;}
+.buy-in-2min-inner{max-width:1200px;margin:0 auto;}
+.buy-in-2min-eyebrow{color:#6ab04c;font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:12px;text-transform:uppercase;}
+.buy-in-2min-title{color:#141414;font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,5vw,52px);font-weight:500;line-height:.95;letter-spacing:-1.5px;margin:0 0 48px;text-transform:uppercase;}
+.buy-in-2min-title .italic-sage{color:#6ab04c;font-style:italic;font-weight:500;}
+.buy-in-2min-steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+.buy-in-2min-icon{width:60px;height:60px;border:0.5px solid rgba(106,176,76,.5);border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(106,176,76,.04);margin-bottom:20px;}
+.buy-in-2min-step-title{color:#141414;font-size:17px;font-weight:500;margin:0 0 8px;letter-spacing:-.2px;}
+.buy-in-2min-step-desc{color:rgba(20,20,20,.6);font-size:13px;line-height:1.6;margin:0;}
+.buy-in-2min-header,.buy-in-2min-step{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1);}
+.buy-in-2min.in-view .buy-in-2min-header{opacity:1;transform:translateY(0);}
+.buy-in-2min.in-view .buy-in-2min-step{opacity:1;transform:translateY(0);}
+.buy-in-2min.in-view .buy-in-2min-step:nth-child(1){transition-delay:.15s;}
+.buy-in-2min.in-view .buy-in-2min-step:nth-child(2){transition-delay:.25s;}
+.buy-in-2min.in-view .buy-in-2min-step:nth-child(3){transition-delay:.35s;}
+@media(prefers-reduced-motion:reduce){
+  .buy-in-2min-header,.buy-in-2min-step{opacity:1;transform:none;transition:none;}
+}
+@media(max-width:900px){
+  .buy-in-2min-steps{grid-template-columns:1fr;gap:20px;}
+  .buy-in-2min-step{display:grid;grid-template-columns:40px 1fr;column-gap:14px;row-gap:3px;align-items:start;}
+  .buy-in-2min-icon{width:40px;height:40px;border-radius:10px;margin-bottom:0;grid-row:span 2;}
+  .buy-in-2min-icon svg{width:18px;height:18px;}
+  .buy-in-2min-step-title{font-size:14px;margin-bottom:0;}
+  .buy-in-2min-step-desc{font-size:11px;}
+  .buy-in-2min-title{margin-bottom:28px;}
+}
 
 /* ─── ORGANIZER CTA ─── */
 .org-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
@@ -723,7 +742,6 @@ footer{padding:60px 64px 32px;border-top:1px solid var(--border);}
   section{padding-block:var(--section-pad-mobile);padding-inline:24px;}
   .events-grid{grid-template-columns:1fr 1fr;gap:12px;}
   .ev-card:first-child{grid-column:span 2;}
-  .how-grid{grid-template-columns:1fr 1fr;}
   .org-inner{grid-template-columns:1fr;gap:40px;}
   .nl-inner{flex-direction:column;gap:32px;}
   .nl-right{max-width:100%;width:100%;}
@@ -1515,10 +1533,6 @@ body.drawer-open{overflow:hidden;}
   .events-grid{grid-template-columns:1fr;gap:12px;}
   .ev-card:first-child{grid-column:span 1;}
   .ev-card-img-wrap{height:180px;}
-
-  /* ── HOW IT WORKS ────────────────────────────────────────────── */
-  .how-grid{grid-template-columns:1fr;}
-  .how-step{padding:28px 20px;}
 
   /* ── SOCIAL PROOF ────────────────────────────────────────────── */
   /* already 1fr at 900px — just fix padding */

@@ -1625,10 +1625,11 @@ function joinNewsletter() {
 }
 
 
-// ─── ALL EVENTS — entrance observer ──────────────────────────────
+// ─── ALL EVENTS / BUY-IN-2MIN — entrance observer ────────────────
 function initAllEventsEntrance() {
+  var sel = '.all-events, .buy-in-2min';
   if (!window.IntersectionObserver) {
-    document.querySelectorAll('.all-events').forEach(function(el){ el.classList.add('in-view'); });
+    document.querySelectorAll(sel).forEach(function(el){ el.classList.add('in-view'); });
     return;
   }
   var io = new IntersectionObserver(function(entries) {
@@ -1639,7 +1640,7 @@ function initAllEventsEntrance() {
       }
     });
   }, { threshold: 0.15 });
-  document.querySelectorAll('.all-events').forEach(function(el){ io.observe(el); });
+  document.querySelectorAll(sel).forEach(function(el){ io.observe(el); });
 }
 
 // ─── CAROUSEL AUTO-SCROLL (RAF-driven, seamless pause/resume) ───
