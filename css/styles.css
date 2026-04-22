@@ -21,6 +21,9 @@
   --radius:12px;
   --radius2:20px;
   --red-error:#c94545;
+  --section-pad-desktop:clamp(64px,8vh,96px);
+  --section-pad-mobile:40px;
+  --section-pad-compact:24px;
 }
 html{scroll-behavior:smooth;background-color:#141414;}
 body{background:#141414;color:var(--white);font-family:'Barlow',sans-serif;overflow-x:hidden;overscroll-behavior-y:none;}
@@ -102,6 +105,8 @@ nav.nav-hidden{transform:translateY(-100%);}
 .all-events.in-view .all-events-search{opacity:1;transform:translateY(0);transition-delay:.25s;}
 .all-events.in-view .all-events-cards{opacity:1;transform:translateY(0);transition-delay:.35s;}
 
+/* Edge-to-edge carousel breakout (desktop only — breakpoints handle narrower) */
+.flyer-carousel-wrap{margin-left:-64px;margin-right:-64px;}
 /* Scroll container — native horizontal scroll, hidden scrollbar */
 .flyer-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:auto;-webkit-overflow-scrolling:touch;}
 .flyer-scroll::-webkit-scrollbar{display:none;}
@@ -128,8 +133,12 @@ nav.nav-hidden{transform:translateY(-100%);}
 @keyframes drift{0%{transform:translateY(0) translateX(0);opacity:0}15%{opacity:.7}85%{opacity:.5}100%{transform:translateY(-180px) translateX(10px);opacity:0}}
 
 /* ─── HERO ─── */
-.hero{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:clamp(80px,12vh,140px);padding-bottom:clamp(24px,4vh,56px);overflow:hidden;background:#141414;}
-.hero + section,.hero + #events-section{padding-top:clamp(24px,4vh,56px);}
+.hero{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:clamp(60px,10vh,100px);padding-bottom:var(--section-pad-compact);overflow:hidden;background:#141414;}
+.hero + section,.hero + #events-section{padding-top:var(--section-pad-compact);}
+@media(max-width:900px){
+  .hero{padding-top:80px;padding-bottom:20px;}
+  .hero + section,.hero + #events-section{padding-top:24px;}
+}
 .hero-bg-overlay{position:absolute;inset:0;background:#141414;pointer-events:none;}
 .hero-bg-overlay::after{content:'';position:absolute;inset:0;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:200px 200px;}
 /* Legacy decorations — hidden */
@@ -290,7 +299,7 @@ nav.nav-hidden{transform:translateY(-100%);}
 }
 
 /* ─── SECTIONS ─── */
-section{padding-block:clamp(48px,8vh,96px);padding-inline:64px;}
+section{padding-block:var(--section-pad-desktop);padding-inline:64px;}
 .section-eyebrow{font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .section-eyebrow::before{content:'✦';font-size:8px;}
 .section-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(42px,5vw,72px);font-weight:900;text-transform:uppercase;line-height:.95;letter-spacing:-1px;margin-bottom:16px;}
@@ -715,7 +724,7 @@ footer{padding:60px 64px 32px;border-top:1px solid var(--border);}
   nav{padding:0 20px;}
   .hero-content{padding:0 24px;}
   .cd-num{font-size:20px;}
-  section{padding-block:clamp(48px,8vh,96px);padding-inline:24px;}
+  section{padding-block:var(--section-pad-mobile);padding-inline:24px;}
   .events-grid{grid-template-columns:1fr 1fr;gap:12px;}
   .ev-card:first-child{grid-column:span 2;}
   .how-grid{grid-template-columns:1fr 1fr;}
@@ -1284,8 +1293,11 @@ body.drawer-open{overflow:hidden;}
   .footer-grid{grid-template-columns:1fr 1fr;gap:32px;}
   .footer-brand{grid-column:1 / -1;max-width:100%;}
 }
+@media(max-width:900px){
+  .site-footer{margin-top:0;}
+  .footer-container{padding:32px 20px 20px;}
+}
 @media(max-width:480px){
-  .footer-container{padding:40px 20px 20px;}
   .footer-bottom{flex-direction:column;align-items:flex-start;gap:14px;}
 }
 
@@ -1495,7 +1507,7 @@ body.drawer-open{overflow:hidden;}
   .cd-sep{font-size:20px;}
 
   /* ── SECTIONS (general) ──────────────────────────────────────── */
-  section{padding-block:clamp(48px,8vh,96px);padding-inline:20px;}
+  section{padding-block:var(--section-pad-mobile);padding-inline:20px;}
   .section-title{font-size:36px;letter-spacing:-.5px;}
 
   /* ── EVENTS SECTION ──────────────────────────────────────────── */
