@@ -340,10 +340,11 @@ function initFadeIns() {
 
 
 // ─── EVENT FILTER (home search bar) ──────────────────────────────
-function filterCat(el) {
-  document.querySelectorAll(".cat").forEach(function(c){ c.classList.remove("on"); });
-  el.classList.add("on");
-}
+// Category filter removed — kept as no-op in case of stale onclick handlers.
+// function filterCat(el) {
+//   document.querySelectorAll(".cat").forEach(function(c){ c.classList.remove("on"); });
+//   el.classList.add("on");
+// }
 
 function filterEvents(q) {
   var cards = document.querySelectorAll('#events-grid-wrap .ev-card');

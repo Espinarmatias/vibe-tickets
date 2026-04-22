@@ -94,9 +94,13 @@ nav.nav-hidden{transform:translateY(-100%);}
 
 /* ─── ALL EVENTS — entrance + carousel ─── */
 .all-events .all-events-header,
-.all-events .all-events-carousel{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1);}
+.all-events .all-events-carousel,
+.all-events .all-events-search,
+.all-events .all-events-cards{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1);}
 .all-events.in-view .all-events-header{opacity:1;transform:translateY(0);}
 .all-events.in-view .all-events-carousel{opacity:1;transform:translateY(0);transition-delay:.15s;}
+.all-events.in-view .all-events-search{opacity:1;transform:translateY(0);transition-delay:.25s;}
+.all-events.in-view .all-events-cards{opacity:1;transform:translateY(0);transition-delay:.35s;}
 
 /* Scroll container — native horizontal scroll, hidden scrollbar */
 .flyer-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;scroll-behavior:auto;-webkit-overflow-scrolling:touch;}
@@ -114,7 +118,9 @@ nav.nav-hidden{transform:translateY(-100%);}
 /* Reduced motion — no entrance animation, no auto-scroll */
 @media(prefers-reduced-motion:reduce){
   .all-events .all-events-header,
-  .all-events .all-events-carousel{opacity:1;transform:none;transition:none;}
+  .all-events .all-events-carousel,
+  .all-events .all-events-search,
+  .all-events .all-events-cards{opacity:1;transform:none;transition:none;}
 }
 
 /* ─── HERO ANIMATIONS ─── */
@@ -122,7 +128,8 @@ nav.nav-hidden{transform:translateY(-100%);}
 @keyframes drift{0%{transform:translateY(0) translateX(0);opacity:0}15%{opacity:.7}85%{opacity:.5}100%{transform:translateY(-180px) translateX(10px);opacity:0}}
 
 /* ─── HERO ─── */
-.hero{min-height:100svh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#141414;}
+.hero{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:clamp(80px,12vh,140px);padding-bottom:clamp(24px,4vh,56px);overflow:hidden;background:#141414;}
+.hero + section,.hero + #events-section{padding-top:clamp(24px,4vh,56px);}
 .hero-bg-overlay{position:absolute;inset:0;background:#141414;pointer-events:none;}
 .hero-bg-overlay::after{content:'';position:absolute;inset:0;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-size:200px 200px;}
 /* Legacy decorations — hidden */
@@ -156,7 +163,7 @@ nav.nav-hidden{transform:translateY(-100%);}
 .hero-content{
   position:relative;z-index:4;
   display:flex;flex-direction:column;align-items:center;text-align:center;
-  padding:clamp(80px,12vh,120px) clamp(24px,6vw,64px) clamp(60px,8vh,96px);
+  padding:0 clamp(24px,6vw,64px);
   width:100%;max-width:800px;
 }
 /* Eyebrow */
@@ -283,7 +290,7 @@ nav.nav-hidden{transform:translateY(-100%);}
 }
 
 /* ─── SECTIONS ─── */
-section{padding:100px 64px;}
+section{padding-block:clamp(48px,8vh,96px);padding-inline:64px;}
 .section-eyebrow{font-family:'Barlow',sans-serif;font-weight:600;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .section-eyebrow::before{content:'✦';font-size:8px;}
 .section-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(42px,5vw,72px);font-weight:900;text-transform:uppercase;line-height:.95;letter-spacing:-1px;margin-bottom:16px;}
@@ -297,9 +304,6 @@ section{padding:100px 64px;}
 .view-all:hover{gap:10px;}
 
 /* CATEGORIES */
-.cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:40px;}
-.cat{background:transparent;border:1px solid #2a2a2a;color:#555;padding:7px 16px;border-radius:20px;font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:background .2s,border-color .2s,color .2s;text-transform:uppercase;letter-spacing:.04em;}
-.cat.on,.cat:hover{background:var(--green);border-color:var(--green);color:#0a0a0a;}
 
 /* SECTION TITLE — events override */
 .events-header .section-title{font-size:36px;letter-spacing:-1.5px;font-family:'Barlow',sans-serif;}
@@ -330,9 +334,6 @@ section{padding:100px 64px;}
 .ev-card-buy{background:var(--green);border:none;color:#0a0a0a;padding:8px 16px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:background .2s;text-transform:uppercase;}
 .ev-card-buy:hover{background:#5a9940;}
 /* Coming soon cards */
-.ev-card-soon{background:#0d0d0d!important;border:1px dashed #1e1e1e!important;min-height:340px;display:flex;align-items:center;justify-content:center;cursor:default!important;}
-.ev-card-soon:hover{transform:none!important;border-color:#1e1e1e!important;}
-.ev-card-soon-label{color:#2a2a2a;font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:500;font-family:'Barlow',sans-serif;}
 /* Legacy overlay/content — hidden in new design */
 .ev-card-overlay{display:none;}
 .ev-card-content{display:none;}
@@ -712,9 +713,9 @@ footer{padding:60px 64px 32px;border-top:1px solid var(--border);}
 /* ─── RESPONSIVE ─── */
 @media(max-width:900px){
   nav{padding:0 20px;}
-  .hero-content{padding:clamp(72px,10vh,100px) 24px clamp(48px,6vh,72px);}
+  .hero-content{padding:0 24px;}
   .cd-num{font-size:20px;}
-  section{padding:64px 24px;}
+  section{padding-block:clamp(48px,8vh,96px);padding-inline:24px;}
   .events-grid{grid-template-columns:1fr 1fr;gap:12px;}
   .ev-card:first-child{grid-column:span 2;}
   .how-grid{grid-template-columns:1fr 1fr;}
@@ -1486,7 +1487,7 @@ body.drawer-open{overflow:hidden;}
   .nav-btn-primary{padding:7px 12px;font-size:12px;letter-spacing:.5px;}
 
   /* ── HERO ────────────────────────────────────────────────────── */
-  .hero{min-height:100svh;overflow-x:hidden;}
+  .hero{overflow-x:hidden;}
   .cd-save{font-size:13px;letter-spacing:3px;}
   .cd-date-line{font-size:15px;letter-spacing:2px;margin-bottom:14px;}
   .cd-num{font-size:14px;}
@@ -1494,7 +1495,7 @@ body.drawer-open{overflow:hidden;}
   .cd-sep{font-size:20px;}
 
   /* ── SECTIONS (general) ──────────────────────────────────────── */
-  section{padding:56px 20px;}
+  section{padding-block:clamp(48px,8vh,96px);padding-inline:20px;}
   .section-title{font-size:36px;letter-spacing:-.5px;}
 
   /* ── EVENTS SECTION ──────────────────────────────────────────── */

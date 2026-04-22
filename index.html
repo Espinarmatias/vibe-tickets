@@ -77,7 +77,7 @@
 <div class="page active" id="pg-home">
 
   <!-- HERO — FASE 2.5 -->
-  <section class="hero" style="padding:0;position:relative;">
+  <section class="hero">
     <div class="hero-bg-overlay"></div>
     <div class="hero-halo"></div>
     <div class="hero-particles">
@@ -129,7 +129,7 @@
       </button>
     </div>
 
-    <div class="fade-in" style="margin-bottom:24px;">
+    <div class="all-events-search" style="margin-bottom:24px;">
       <div style="position:relative;max-width:420px;">
         <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.4;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="event-search" type="text" placeholder="Search events..." oninput="filterEvents(this.value)"
@@ -137,16 +137,7 @@
           onfocus="this.style.borderColor='rgba(106,176,76,.3)'" onblur="this.style.borderColor='var(--border)'"/>
       </div>
     </div>
-    <div class="cats fade-in">
-      <button class="cat on" onclick="filterCat(this)">All</button>
-      <button class="cat" onclick="filterCat(this)">Parties</button>
-      <button class="cat" onclick="filterCat(this)">Concerts</button>
-      <button class="cat" onclick="filterCat(this)">Fitness</button>
-      <button class="cat" onclick="filterCat(this)">Rooftop</button>
-      <button class="cat" onclick="filterCat(this)">Cultural</button>
-      <button class="cat" onclick="filterCat(this)">Electronic</button>
-    </div>
-    <div class="events-grid fade-in fade-in-delay-1" id="events-grid-wrap">
+    <div class="events-grid all-events-cards" id="events-grid-wrap">
       <!-- RAWDEO 2 - Featured (spans 2 cols) -->
       <div class="ev-card" onclick="openCheckout('rawdeo')">
         <div class="ev-card-img-wrap">
@@ -168,13 +159,6 @@
           </div>
         </div>
       </div>
-      <!-- COMING SOON x6 -->
-      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
-      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
-      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
-      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
-      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
-      <div class="ev-card ev-card-soon"><span class="ev-card-soon-label">Coming soon</span></div>
     </div>
   </section>
 
