@@ -842,6 +842,12 @@ function doPay() {
 function closeConfirm() {
   var screen = document.getElementById('confirm-screen');
   if (screen) screen.classList.remove('open');
+  document.body.classList.remove('drawer-open');
+  document.documentElement.style.removeProperty('--drawer-scroll-top');
+  if (typeof _cdSavedScrollY === 'number') {
+    window.scrollTo(0, _cdSavedScrollY);
+    _cdSavedScrollY = null;
+  }
   goPage('home');
 }
 
@@ -1045,7 +1051,11 @@ function showConfirmation(data) {
   setWalletButton();
 
   screen.classList.add('open');
-  window.scrollTo(0, 0);
+  if (typeof _cdSavedScrollY !== 'number') {
+    _cdSavedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.documentElement.style.setProperty('--drawer-scroll-top', '-' + _cdSavedScrollY + 'px');
+  }
+  document.body.classList.add('drawer-open');
 }
 
 function generateQR(data) {
