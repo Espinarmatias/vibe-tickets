@@ -188,46 +188,53 @@ function renderAttendeeFields() {
   var list = document.getElementById('attendee-list');
   if (!list) return;
 
-  var tierName  = currentTier ? currentTier.name : 'GENERAL';
-  var tierPrice = currentTier ? currentTier.priceCRC : 0;
-
   // Sync attendeeData length to qty (preserve existing entries)
   while (attendeeData.length < qty)  { attendeeData.push({ name: '', email: '' }); }
   while (attendeeData.length > qty)  { attendeeData.pop(); }
 
-  // Auto-fill Attendee 1 with logged-in user data if slot is still empty
+  // Buyer (attendeeData[0]) is populated by the auth section, not here.
+  // If the user is logged in and slot 0 is empty, pre-fill from session.
   var _authUser = authCurrentUser();
-  if (_authUser && attendeeData[0] && !attendeeData[0].name && !attendeeData[0].email) {
+  if (_authUser && attendeeData[0] && !attendeeData[0].name) {
     attendeeData[0].name  = _authUser.fullName || ((_authUser.firstName || '') + ' ' + (_authUser.lastName || '')).trim();
     attendeeData[0].email = _authUser.email;
   }
 
-  var html = '';
-  for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i];
+  // Only render "OTHER ATTENDEES" when qty >= 2
+  if (qty < 2) { list.innerHTML = ''; validateAttendees(); return; }
+
+  var tierName = currentTier ? currentTier.name : 'GENERAL';
+  var html =
+    '<div class="attendee-extra-header">' +
+      '<div class="attendee-extra-eyebrow">OTHER ATTENDEES</div>' +
+      '<div class="attendee-extra-desc">Each ticket needs a name. We\u2019ll send all QRs to your email above.</div>' +
+    '</div>';
+
+  for (var i = 1; i < qty; i++) {
+    var a = attendeeData[i] || { name: '' };
+    var parts = (a.name || '').split(' ');
+    var first = parts[0] || '';
+    var last  = parts.slice(1).join(' ');
     html +=
       '<div class="attendee-ticket">' +
         '<div class="attendee-ticket-header">' +
-          '<div class="attendee-ticket-label">TICKET ' + (i + 1) + ' · ' + tierName + '</div>' +
-          '<div class="attendee-ticket-price">' + formatCRC(tierPrice) + '</div>' +
+          '<div class="attendee-ticket-label">TICKET ' + (i + 1) + ' \u00b7 ' + tierName + '</div>' +
         '</div>' +
-        '<div class="attendee-fields">' +
+        '<div class="attendee-fields attendee-fields--split">' +
           '<div>' +
-            '<label class="attendee-field-label" for="att-name-' + i + '">FULL NAME</label>' +
-            '<input type="text" class="attendee-input" id="att-name-' + i + '" ' +
-                   'value="' + escapeHtml(a.name) + '" placeholder="Full name" ' +
-                   'autocomplete="name" ' +
-                   'oninput="updateAttendee(' + i + ',\'name\',this.value)" ' +
-                   'onchange="updateAttendee(' + i + ',\'name\',this.value)" ' +
+            '<label class="attendee-field-label" for="att-first-' + i + '">FIRST NAME</label>' +
+            '<input type="text" class="attendee-input" id="att-first-' + i + '" ' +
+                   'value="' + escapeHtml(first) + '" placeholder="First name" ' +
+                   'autocomplete="given-name" ' +
+                   'oninput="updateAttendeeName(' + i + ')" ' +
                    'onblur="onAttendeeBlur()"/>' +
           '</div>' +
           '<div>' +
-            '<label class="attendee-field-label" for="att-email-' + i + '">EMAIL</label>' +
-            '<input type="email" class="attendee-input" id="att-email-' + i + '" ' +
-                   'value="' + escapeHtml(a.email) + '" placeholder="email@example.com" ' +
-                   'autocomplete="email" ' +
-                   'oninput="updateAttendee(' + i + ',\'email\',this.value)" ' +
-                   'onchange="updateAttendee(' + i + ',\'email\',this.value)" ' +
+            '<label class="attendee-field-label" for="att-last-' + i + '">LAST NAME</label>' +
+            '<input type="text" class="attendee-input" id="att-last-' + i + '" ' +
+                   'value="' + escapeHtml(last) + '" placeholder="Last name" ' +
+                   'autocomplete="family-name" ' +
+                   'oninput="updateAttendeeName(' + i + ')" ' +
                    'onblur="onAttendeeBlur()"/>' +
           '</div>' +
         '</div>' +
@@ -237,25 +244,50 @@ function renderAttendeeFields() {
   validateAttendees();
 }
 
-function updateAttendee(index, field, value) {
+function updateAttendeeName(index) {
+  var f = document.getElementById('att-first-' + index);
+  var l = document.getElementById('att-last-' + index);
   if (!attendeeData[index]) attendeeData[index] = { name: '', email: '' };
-  attendeeData[index][field] = value.trim();
+  attendeeData[index].name = ((f ? f.value.trim() : '') + ' ' + (l ? l.value.trim() : '')).trim();
+  validateAttendees();
+}
+
+function updateBuyerField(field, value) {
+  if (!attendeeData[0]) attendeeData[0] = { name: '', email: '' };
+  if (field === 'email') {
+    attendeeData[0].email = value.trim();
+  } else {
+    // first / last → recompose full name
+    var firstEl = document.getElementById('ca-first');
+    var lastEl  = document.getElementById('ca-last');
+    attendeeData[0].name = ((firstEl ? firstEl.value.trim() : '') + ' ' + (lastEl ? lastEl.value.trim() : '')).trim();
+  }
   validateAttendees();
 }
 
 function validateAttendees() {
   var emailRe  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var allValid = true;
+  var user = authCurrentUser();
 
-  for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i] || { name: '', email: '' };
-    if (!a.name || !a.email || !emailRe.test(a.email)) {
-      allValid = false;
-      break;
+  var buyer = attendeeData[0] || { name: '', email: '' };
+  var buyerEmail = user ? user.email : buyer.email;
+  var buyerName  = user ? (user.fullName || ((user.firstName || '') + ' ' + (user.lastName || '')).trim()) : buyer.name;
+  if (!buyerEmail || !emailRe.test(buyerEmail) || !buyerName) allValid = false;
+
+  // Terms checkbox (only required when not yet logged in)
+  if (!user) {
+    var terms = document.getElementById('ca-terms-check');
+    if (!terms || !terms.checked) allValid = false;
+  }
+
+  if (allValid) {
+    for (var i = 1; i < qty; i++) {
+      var a = attendeeData[i] || { name: '' };
+      if (!a.name) { allValid = false; break; }
     }
   }
 
-  // Warning only shows after user has interacted (blur) or clicked pay
   var warning = document.getElementById('attendee-warning');
   if (warning) {
     if (attendeeValidationTriggered && !allValid) {
@@ -265,23 +297,13 @@ function validateAttendees() {
     }
   }
 
-  var btn = document.getElementById('ed-buy-btn');
-  if (btn) {
-    btn.disabled = !allValid;
-    btn.classList.toggle('btn-disabled', !allValid);
-  }
-
   return allValid;
 }
 
 function onAttendeeBlur() {
-  for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i] || { name: '', email: '' };
-    // If user typed something but left a field incomplete, trigger warning
-    if ((a.name && !a.email) || (!a.name && a.email)) {
-      attendeeValidationTriggered = true;
-      break;
-    }
+  for (var i = 1; i < qty; i++) {
+    var a = attendeeData[i] || { name: '' };
+    if (!a.name) { attendeeValidationTriggered = true; break; }
   }
   validateAttendees();
 }
@@ -394,103 +416,75 @@ function renderCheckoutAuth() {
   var user = authCurrentUser();
 
   if (user) {
-    // Estado 2: logged in — green badge
-    var displayName = escapeHtml(user.fullName || user.firstName || user.email.split('@')[0]);
     var displayEmail = escapeHtml(user.email);
     section.innerHTML =
-      '<div class="ca-logged-badge">' +
-        '<svg class="ca-logged-check" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
-          '<circle cx="12" cy="12" r="10" stroke="#6ab04c" stroke-width="1.5"/>' +
-          '<path d="M8 12l3 3 6-6" stroke="#6ab04c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-        '<div class="ca-logged-info">' +
-          '<div class="ca-logged-eyebrow">LOGGED IN</div>' +
-          '<div class="ca-logged-user">Continue as <strong>' + displayName + '</strong><span class="ca-logged-email"> · ' + displayEmail + '</span></div>' +
+      '<div class="ca-buying-as">' +
+        '<div class="ca-buying-info">' +
+          '<span class="ca-buying-label">Buying as</span>' +
+          '<span class="ca-buying-email">' + displayEmail + '</span>' +
         '</div>' +
-        '<button type="button" class="ca-logged-switch" onclick="handleCheckoutSwitchUser()">NOT YOU?</button>' +
+        '<button type="button" class="ca-buying-edit" onclick="handleCheckoutSwitchUser()">Not you?</button>' +
       '</div>';
     return;
   }
 
-  // Estado 1 (signup) o 3 (login)
-  var isSignup = (checkoutAuthMode === 'signup');
-  var googleSVG   = getGoogleLogoSVG();
-  var googleText  = isSignup ? 'Continue with Google' : 'Sign in with Google';
-  var googleBadge = isSignup ? '<span class="ca-google-badge">30 sec</span>' : '';
-  var dividerText = isSignup ? 'OR USE EMAIL' : 'OR';
+  var buyer = attendeeData[0] || { name: '', email: '' };
+  var parts = (buyer.name || '').split(' ');
+  var firstVal = escapeHtml(parts[0] || '');
+  var lastVal  = escapeHtml(parts.slice(1).join(' '));
+  var emailVal = escapeHtml(buyer.email || '');
 
-  var headerHTML = isSignup
-    ? '<div class="ca-header">' +
-        '<div class="ca-eyebrow">CREATE ACCOUNT TO CONTINUE</div>' +
-        '<div class="ca-description">Required to send your ticket and access My Tickets. Takes 30 seconds.</div>' +
-      '</div>'
-    : '<div class="ca-header">' +
-        '<div class="ca-eyebrow">LOG IN TO CONTINUE</div>' +
-        '<div class="ca-description">Sign in with your existing VIBE account.</div>' +
-      '</div>';
-
-  var formFields = isSignup
-    ? '<div class="ca-row">' +
-        '<div class="ca-field">' +
-          '<label class="ca-label" for="ca-first">FIRST NAME</label>' +
-          '<input type="text" class="ca-input" id="ca-first" autocomplete="given-name" required />' +
-        '</div>' +
-        '<div class="ca-field">' +
-          '<label class="ca-label" for="ca-last">LAST NAME</label>' +
-          '<input type="text" class="ca-input" id="ca-last" autocomplete="family-name" required />' +
-        '</div>' +
-      '</div>' +
-      '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-email">EMAIL</label>' +
-        '<input type="email" class="ca-input" id="ca-email" placeholder="you@gmail.com" autocomplete="email" required />' +
-      '</div>' +
-      '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-password">PASSWORD</label>' +
-        '<input type="password" class="ca-input" id="ca-password" placeholder="At least 8 characters" minlength="8" autocomplete="new-password" required />' +
-      '</div>'
-    : '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-email">EMAIL</label>' +
-        '<input type="email" class="ca-input" id="ca-email" placeholder="you@gmail.com" autocomplete="email" required />' +
-      '</div>' +
-      '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-password">PASSWORD</label>' +
-        '<input type="password" class="ca-input" id="ca-password" placeholder="Your password" autocomplete="current-password" required />' +
-      '</div>';
-
-  var submitHandler = isSignup ? 'handleCheckoutSignup(event)' : 'handleCheckoutLogin(event)';
-
-  var termsHTML = isSignup
-    ? 'By creating an account you agree to our <a href="#" class="ca-link" onclick="return false">Terms</a> and <a href="#" class="ca-link" onclick="return false">Privacy Policy</a>. Already have an account? <a href="#" onclick="switchCheckoutAuthMode(\'login\'); return false;" class="ca-link ca-link-strong">Log in</a>'
-    : 'Don\'t have an account? <a href="#" onclick="switchCheckoutAuthMode(\'signup\'); return false;" class="ca-link ca-link-strong">Sign up</a>';
-
-  var appleText = isSignup ? 'Continue with Apple' : 'Sign in with Apple';
+  var googleSVG = getGoogleLogoSVG();
   var appleSVG  = '<svg class="apple-logo" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.41-1.09-.47-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.41C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>';
 
   section.innerHTML =
-    headerHTML +
+    '<div class="ca-header">' +
+      '<div class="ca-eyebrow">YOUR INFORMATION</div>' +
+      '<div class="ca-description">We\u2019ll send your ticket QR to this email.</div>' +
+    '</div>' +
     '<div class="ca-card">' +
       '<div class="ca-oauth-row">' +
         '<button type="button" class="ca-google-btn" onclick="handleCheckoutGoogleAuth()">' +
           googleSVG +
-          '<span class="ca-google-text">' + googleText + '</span>' +
-          googleBadge +
+          '<span class="ca-google-text">Continue with Google</span>' +
         '</button>' +
-        '<button type="button" class="ca-apple-btn" onclick="handleCheckoutAppleAuth()" aria-label="' + appleText + '">' +
+        '<button type="button" class="ca-apple-btn" onclick="handleCheckoutAppleAuth()" aria-label="Continue with Apple">' +
           appleSVG +
-          '<span class="ca-apple-text">' + appleText + '</span>' +
+          '<span class="ca-apple-text">Continue with Apple</span>' +
         '</button>' +
       '</div>' +
       '<div class="ca-divider">' +
         '<span class="ca-divider-line"></span>' +
-        '<span class="ca-divider-text">' + dividerText + '</span>' +
+        '<span class="ca-divider-text">OR USE EMAIL</span>' +
         '<span class="ca-divider-line"></span>' +
       '</div>' +
-      '<form class="ca-form" onsubmit="' + submitHandler + '">' +
-        formFields +
+      '<div class="ca-form">' +
+        '<div class="ca-field">' +
+          '<label class="ca-label" for="ca-email">EMAIL</label>' +
+          '<input type="email" class="ca-input" id="ca-email" placeholder="your@email.com" autocomplete="email" ' +
+                 'value="' + emailVal + '" ' +
+                 'oninput="updateBuyerField(\'email\', this.value)" onblur="onAttendeeBlur()" />' +
+        '</div>' +
+        '<div class="ca-row">' +
+          '<div class="ca-field">' +
+            '<label class="ca-label" for="ca-first">FIRST NAME</label>' +
+            '<input type="text" class="ca-input" id="ca-first" placeholder="First name" autocomplete="given-name" ' +
+                   'value="' + firstVal + '" ' +
+                   'oninput="updateBuyerField(\'first\', this.value)" onblur="onAttendeeBlur()" />' +
+          '</div>' +
+          '<div class="ca-field">' +
+            '<label class="ca-label" for="ca-last">LAST NAME</label>' +
+            '<input type="text" class="ca-input" id="ca-last" placeholder="Last name" autocomplete="family-name" ' +
+                   'value="' + lastVal + '" ' +
+                   'oninput="updateBuyerField(\'last\', this.value)" onblur="onAttendeeBlur()" />' +
+          '</div>' +
+        '</div>' +
+        '<label class="ca-terms-check-row">' +
+          '<input type="checkbox" id="ca-terms-check" onchange="validateAttendees()"/>' +
+          '<span>I agree to the <a href="#" class="ca-link" onclick="return false">Terms</a> and <a href="#" class="ca-link" onclick="return false">Privacy Policy</a>.</span>' +
+        '</label>' +
         '<div class="ca-error" id="ca-error"></div>' +
-        '<button type="submit" class="ca-submit-btn" style="display:none"></button>' +
-      '</form>' +
-      '<div class="ca-terms">' + termsHTML + '</div>' +
+      '</div>' +
     '</div>';
 }
 
@@ -854,8 +848,11 @@ function closeConfirm() {
 function addPurchaseToUserTickets() {
   var ev = EVENTS[currentEvent];
   var eventImage = ev.isMansita ? MANSITA_B64 : RAWDEO_B64;
+  var buyer = attendeeData[0] || { name: 'Guest', email: '' };
+  var buyerEmail = buyer.email || (authCurrentUser() && authCurrentUser().email) || '';
   for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i] || { name: 'Guest', email: '' };
+    var a = attendeeData[i] || { name: '' };
+    var name = (i === 0) ? (buyer.name || 'Guest') : (a.name || buyer.name || 'Guest');
     userTickets.push({
       ticketId: 'TKT-' + Date.now() + '-' + i,
       eventId: currentEvent,
@@ -866,8 +863,8 @@ function addPurchaseToUserTickets() {
       eventImage: eventImage,
       tierId: currentTier ? currentTier.id : 'general',
       tierName: currentTier ? currentTier.name : 'GENERAL',
-      attendeeName: a.name || 'Guest',
-      attendeeEmail: a.email || '',
+      attendeeName: name,
+      attendeeEmail: buyerEmail,
       priceCRC: currentTier ? currentTier.priceCRC : 0,
       purchasedAt: new Date().toISOString()
     });
@@ -1898,20 +1895,28 @@ function cdNext() {
     return;
   }
   if (cdCurrentStep === 2) {
-    if (!authIsLoggedIn()) {
-      var authSec = document.getElementById('checkout-auth-section');
-      if (authSec) {
-        authSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        authSec.style.animation = 'none';
-        setTimeout(function() { authSec.style.animation = 'ca-pulse .6s ease'; }, 10);
-      }
-      return;
-    }
     attendeeValidationTriggered = true;
     if (!validateAttendees()) {
       var w = document.getElementById('attendee-warning');
       if (w) w.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
+    }
+    // If not logged in, create a simulated session from the buyer form
+    if (!authIsLoggedIn()) {
+      var buyer = attendeeData[0] || { name: '', email: '' };
+      var bp = (buyer.name || '').split(' ');
+      var sessionUser = {
+        id: 'u_' + Date.now(),
+        email: buyer.email,
+        firstName: bp[0] || '',
+        lastName: bp.slice(1).join(' ') || '',
+        fullName: buyer.name,
+        emailVerified: false,
+        provider: 'email',
+        createdAt: new Date().toISOString()
+      };
+      try { localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser)); } catch (e) {}
+      renderAuthState();
     }
     goToStep(3);
     return;

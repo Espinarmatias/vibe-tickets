@@ -1965,3 +1965,65 @@ body.drawer-open{overflow:hidden;}
   margin-top:8px;
 }
 .confirm-btn-link:hover{opacity:.8;}
+
+/* ══════════════════════════════════════════════════════════
+   Checkout Step 2 — Buyer + Other Attendees
+   ══════════════════════════════════════════════════════════ */
+.ca-buying-as{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;margin:0 0 20px;
+  background:rgba(106,176,76,.08);
+  border:0.5px solid rgba(106,176,76,.25);
+  border-radius:12px;
+}
+.ca-buying-info{display:flex;align-items:baseline;gap:10px;min-width:0;flex:1;}
+.ca-buying-label{
+  font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:1.2px;text-transform:uppercase;
+  color:rgba(255,255,255,.5);flex-shrink:0;
+}
+.ca-buying-email{
+  font-family:'Barlow',sans-serif;font-size:14px;font-weight:500;
+  color:#ffffff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ca-buying-edit{
+  background:transparent;border:0.5px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.7);
+  padding:6px 12px;border-radius:8px;cursor:pointer;flex-shrink:0;
+  font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.8px;text-transform:uppercase;
+  transition:all .2s cubic-bezier(.22,1,.36,1);
+}
+.ca-buying-edit:hover{border-color:rgba(255,255,255,.32);color:#ffffff;}
+
+.ca-terms-check-row{
+  display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+  padding:14px 0 4px;margin-top:4px;
+  font-family:'Barlow',sans-serif;font-size:13px;line-height:1.5;
+  color:rgba(255,255,255,.65);
+}
+.ca-terms-check-row input[type="checkbox"]{
+  width:16px;height:16px;margin:2px 0 0;cursor:pointer;flex-shrink:0;
+  accent-color:var(--green);
+}
+.ca-terms-check-row .ca-link{color:#ffffff;text-decoration:underline;text-underline-offset:2px;}
+
+.attendee-extra-header{
+  margin:28px 0 14px;padding-top:20px;
+  border-top:0.5px solid rgba(255,255,255,.08);
+}
+.attendee-extra-eyebrow{
+  font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:1.8px;text-transform:uppercase;color:var(--green);
+  margin-bottom:6px;
+}
+.attendee-extra-desc{
+  font-family:'Barlow',sans-serif;font-size:13px;line-height:1.55;
+  color:rgba(255,255,255,.55);
+}
+.attendee-fields--split{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+@media (max-width: 480px){
+  .attendee-fields--split{grid-template-columns:1fr;}
+}
