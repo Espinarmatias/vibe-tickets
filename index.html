@@ -329,7 +329,7 @@
     </div>
 
     <div class="mt-header">
-      <div class="mt-chip">✦ YOUR TICKETS</div>
+      <div class="mt-chip">✦ MY TICKETS</div>
       <h1 class="mt-title">My Tickets</h1>
     </div>
 
@@ -353,302 +353,69 @@
   <span id="ed-widget-event-name" style="display:none">RAWDEO 2</span>
   <span id="ed-widget-sub-text" style="display:none">14TH ANNIVERSARY · RAW FITNESS</span>
 
-  <div class="edv2-layout">
-    <!-- ── LEFT COLUMN ── -->
-    <div class="edv2-left">
-      <!-- Flyer image -->
-      <div class="edv2-img-wrap">
-        <img class="edv2-img" id="ed-hero-img" src="public/images/rawdeo.jpg" alt="RAWDEO 2" loading="lazy" decoding="async"/>
-      </div>
+  <div class="ev-detail-wrap">
+    <!-- Flyer image -->
+    <div class="edv2-img-wrap">
+      <img class="edv2-img" id="ed-hero-img" src="public/images/rawdeo.jpg" alt="RAWDEO 2" loading="lazy" decoding="async"/>
+    </div>
 
-      <!-- Badges -->
-      <div class="edv2-badges">
-        <span class="edv2-badge-sell">Selling Out</span>
-        <span class="edv2-badge-tag">Party</span>
-        <span class="edv2-badge-tag">Electronic</span>
-      </div>
+    <!-- Badges -->
+    <div class="edv2-badges">
+      <span class="edv2-badge-sell">Selling Out</span>
+      <span class="edv2-badge-tag">Party</span>
+      <span class="edv2-badge-tag">Electronic</span>
+    </div>
 
-      <!-- Title & subtitle -->
-      <h1 class="edv2-title" id="ed-hero-title">RAWDEO 2</h1>
-      <p class="edv2-subtitle" id="ed-hero-sub">14th Anniversary · RAW FITNESS</p>
+    <!-- Title & subtitle -->
+    <h1 class="edv2-title" id="ed-hero-title">RAWDEO 2</h1>
+    <p class="edv2-subtitle" id="ed-hero-sub">14th Anniversary · RAW FITNESS</p>
 
-      <!-- Info grid -->
-      <div class="edv2-info-grid">
-        <div class="edv2-info-row"><span class="edv2-info-k">Date</span><span class="edv2-info-v" id="ed-info-date">June 6, 2026</span></div>
-        <div class="edv2-info-row"><span class="edv2-info-k">Time</span><span class="edv2-info-v">8:00 PM</span></div>
-        <div class="edv2-info-row edv2-info-row-last"><span class="edv2-info-k">Venue</span><span class="edv2-info-v" id="ed-info-place">Pedregal Event Center</span></div>
-      </div>
+    <!-- Buy Now — prominent sage CTA (sticky bottom on mobile) -->
+    <button class="ev-buy-now" onclick="openCheckoutDrawer()">BUY NOW</button>
 
-      <!-- Countdown -->
-      <div class="edv2-cd-row">
-        <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-d">--</span><span class="edv2-cd-lbl">Days</span></div>
-        <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-h">--</span><span class="edv2-cd-lbl">Hrs</span></div>
-        <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-m">--</span><span class="edv2-cd-lbl">Min</span></div>
-        <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-s">--</span><span class="edv2-cd-lbl">Sec</span></div>
-      </div>
+    <!-- Info grid -->
+    <div class="edv2-info-grid">
+      <div class="edv2-info-row"><span class="edv2-info-k">Date</span><span class="edv2-info-v" id="ed-info-date">June 6, 2026</span></div>
+      <div class="edv2-info-row"><span class="edv2-info-k">Time</span><span class="edv2-info-v">8:00 PM</span></div>
+      <div class="edv2-info-row edv2-info-row-last"><span class="edv2-info-k">Venue</span><span class="edv2-info-v" id="ed-info-place">Pedregal Event Center</span></div>
+    </div>
 
-      <!-- DJ Lineup (JS replaces innerHTML via updateLineup) -->
-      <div id="ed-lineup-section" class="edv2-lineup">
-        <div class="section-eyebrow">Confirmed artists</div>
-        <div class="ed-dj-card fade-in">
-          <img class="ed-dj-img" src="public/images/karlo.jpg" alt="Karlo" loading="lazy" decoding="async"/>
-          <div>
-            <div class="ed-dj-role">DJ · Main Set</div>
-            <div class="ed-dj-name">KARLO</div>
-            <div class="ed-dj-desc">One of the most recognized DJs in the Costa Rican electronic scene, known for his high-energy sets blending tech house and minimal.</div>
-          </div>
+    <!-- Countdown -->
+    <div class="edv2-cd-row">
+      <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-d">--</span><span class="edv2-cd-lbl">Days</span></div>
+      <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-h">--</span><span class="edv2-cd-lbl">Hrs</span></div>
+      <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-m">--</span><span class="edv2-cd-lbl">Min</span></div>
+      <div class="edv2-cd-box"><span class="edv2-cd-num" data-cd="rawdeo-s">--</span><span class="edv2-cd-lbl">Sec</span></div>
+    </div>
+
+    <!-- DJ Lineup (JS replaces innerHTML via updateLineup) -->
+    <div id="ed-lineup-section" class="edv2-lineup">
+      <div class="section-eyebrow">Confirmed artists</div>
+      <div class="ed-dj-card fade-in">
+        <img class="ed-dj-img" src="public/images/karlo.jpg" alt="Karlo" loading="lazy" decoding="async"/>
+        <div>
+          <div class="ed-dj-role">DJ · Main Set</div>
+          <div class="ed-dj-name">KARLO</div>
+          <div class="ed-dj-desc">One of the most recognized DJs in the Costa Rican electronic scene, known for his high-energy sets blending tech house and minimal.</div>
         </div>
-        <div class="ed-dj-card fade-in fade-in-delay-1">
-          <img class="ed-dj-img" src="public/images/retana.jpg" alt="Retana" loading="lazy" decoding="async"/>
-          <div>
-            <div class="ed-dj-role">DJ · Special Set</div>
-            <div class="ed-dj-name">RETANA</div>
-            <div class="ed-dj-desc">With a unique style mixing deep grooves and hypnotic melodies, RETANA has conquered dance floors across Costa Rica.</div>
-          </div>
+      </div>
+      <div class="ed-dj-card fade-in fade-in-delay-1">
+        <img class="ed-dj-img" src="public/images/retana.jpg" alt="Retana" loading="lazy" decoding="async"/>
+        <div>
+          <div class="ed-dj-role">DJ · Special Set</div>
+          <div class="ed-dj-name">RETANA</div>
+          <div class="ed-dj-desc">With a unique style mixing deep grooves and hypnotic melodies, RETANA has conquered dance floors across Costa Rica.</div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ── RIGHT COLUMN ── -->
-    <div class="edv2-right">
+  <!-- Sticky mobile Buy Now (bottom of viewport) -->
+  <div class="ev-sticky-buy">
+    <button class="ev-buy-now" onclick="openCheckoutDrawer()">BUY NOW</button>
+  </div>
 
-      <!-- Section: Select your ticket -->
-      <div class="edv2-section-hdr"><span class="edv2-section-lbl">Select your ticket</span></div>
-
-      <!-- VIP tier card -->
-      <div class="edv2-ticket-card tier-selectable selected" data-tier-id="vip" onclick="selectTier('vip')">
-        <div class="edv2-ticket-top">
-          <div class="edv2-tier-info">
-            <div class="edv2-tier-name">VIP</div>
-            <div class="edv2-tier-desc">Premium experience</div>
-          </div>
-          <div class="edv2-tier-pricing">
-            <div class="edv2-price-row">
-              <span class="edv2-price-crc">₡35,000</span>
-              <span class="edv2-price-usd">~$65</span>
-            </div>
-            <div class="edv2-price-note">FEES INCLUDED</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- EARLY BIRD tier card -->
-      <div class="edv2-ticket-card tier-selectable" data-tier-id="early-bird" onclick="selectTier('early-bird')">
-        <div class="edv2-ticket-top">
-          <div class="edv2-tier-info">
-            <div class="edv2-tier-name">EARLY BIRD</div>
-            <div class="edv2-tier-desc">Limited release</div>
-          </div>
-          <div class="edv2-tier-pricing">
-            <div class="edv2-price-row">
-              <span class="edv2-price-crc">₡15,000</span>
-              <span class="edv2-price-usd">~$28</span>
-            </div>
-            <div class="edv2-price-note">FEES INCLUDED</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quantity card -->
-      <div class="edv2-ticket-card">
-        <div class="edv2-summary-qty">
-          <span class="edv2-qty-label">Quantity</span>
-          <div class="edv2-qty-controls">
-            <button class="edv2-qty-btn" onclick="chQ(-1)">−</button>
-            <span class="edv2-qty-num" id="ed-q">1</span>
-            <button class="edv2-qty-btn" onclick="chQ(1)">+</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section: Attendee information -->
-      <section class="attendee-section" id="attendee-section">
-        <div class="attendee-header">
-          <div class="attendee-eyebrow">ATTENDEE INFORMATION</div>
-          <div class="attendee-description">Each attendee receives their ticket by email. Use the name as it appears on ID.</div>
-        </div>
-        <div class="attendee-list" id="attendee-list">
-          <!-- Rendered by renderAttendeeFields() -->
-        </div>
-        <div class="attendee-warning" id="attendee-warning">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>All names and emails required before payment</span>
-        </div>
-      </section>
-
-      <!-- Section: Checkout auth (inline signup / login) -->
-      <section class="checkout-auth-section" id="checkout-auth-section"></section>
-
-      <!-- Section: Payment method -->
-      <div class="edv2-section-hdr"><span class="edv2-section-lbl">Payment method</span></div>
-
-      <div class="pay-opts-list">
-
-        <!-- Card: Credit / Debit -->
-        <div class="pay-opt on" data-pay="card" onclick="selPay('card')">
-          <div class="pay-opt-icon">
-            <svg width="28" height="20" viewBox="0 0 24 18" fill="none">
-              <rect x="1" y="1" width="22" height="16" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
-              <rect x="1" y="5" width="22" height="3.5" fill="currentColor"/>
-              <rect x="4" y="12" width="6" height="2" rx="0.5" fill="currentColor"/>
-            </svg>
-          </div>
-          <div class="pay-opt-info">
-            <div class="pay-opt-name">Credit / Debit Card</div>
-            <div class="pay-opt-brands">
-              <div class="pay-brand-mini"><svg width="22" height="14" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1f71"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" font-style="italic">VISA</text></svg></div>
-              <div class="pay-brand-mini"><svg width="22" height="14" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1a1a"/><circle cx="19" cy="16" r="9" fill="#eb001b"/><circle cx="29" cy="16" r="9" fill="#f79e1b" fill-opacity="0.85"/></svg></div>
-              <div class="pay-brand-mini"><svg width="22" height="14" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#006fcf"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle">AMEX</text></svg></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SINPE Móvil -->
-        <div class="pay-opt" data-pay="sinpe" onclick="selPay('sinpe')">
-          <div class="pay-opt-icon">
-            <svg width="32" height="22" viewBox="0 0 48 32">
-              <rect width="48" height="32" rx="4" fill="#003087"/>
-              <text x="24" y="15" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">SINPE</text>
-              <text x="24" y="26" font-family="Arial,sans-serif" font-weight="400" font-size="7" fill="#ffffff" text-anchor="middle" font-style="italic">Móvil</text>
-            </svg>
-          </div>
-          <div class="pay-opt-info">
-            <div class="pay-opt-name">SINPE Móvil</div>
-            <div class="pay-opt-sub">Instant transfer · CR</div>
-          </div>
-        </div>
-
-        <!-- Apple Pay -->
-        <div class="pay-opt" data-pay="apple" onclick="selPay('apple')">
-          <div class="pay-opt-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.5 12.5c0-2.5 2-3.7 2.1-3.8-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.6.9-.7 0-1.9-.9-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 2.9 2.4 1.2 0 1.6-.8 3.1-.8 1.4 0 1.8.8 3.1.7 1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.6-2.1-.8-4.5-1.7-4.5-4.7zM15.2 5.1c.6-.8 1.1-1.9 1-2.9-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.8 1 .1 2.1-.5 2.7-1.3z"/>
-            </svg>
-          </div>
-          <div class="pay-opt-info">
-            <div class="pay-opt-name">Apple Pay</div>
-            <div class="pay-opt-sub">Face ID · Touch ID</div>
-          </div>
-        </div>
-
-        <!-- Google Pay -->
-        <div class="pay-opt" data-pay="google" onclick="selPay('google')">
-          <div class="pay-opt-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24">
-              <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-          </div>
-          <div class="pay-opt-info">
-            <div class="pay-opt-name">Google Pay</div>
-            <div class="pay-opt-sub">Fingerprint · PIN</div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Payment panels (JS toggles .show) -->
-      <div class="pay-panel show" id="pp-card">
-        <div class="card-form">
-
-          <div class="card-field">
-            <label class="card-field-label" for="card-number">CARD NUMBER</label>
-            <div class="card-input-wrapper">
-              <input type="text" id="card-number" class="card-input" placeholder="1234 5678 9012 3456" autocomplete="cc-number" inputmode="numeric" maxlength="19" oninput="handleCardNumberInput(this)"/>
-              <div class="card-brand-display" id="card-brand-display">
-                <div class="card-brand-multi">
-                  <div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1f71"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" font-style="italic">VISA</text></svg></div>
-                  <div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1a1a"/><circle cx="19" cy="16" r="9" fill="#eb001b"/><circle cx="29" cy="16" r="9" fill="#f79e1b" fill-opacity="0.85"/></svg></div>
-                  <div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#006fcf"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle">AMEX</text></svg></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card-field-row">
-            <div class="card-field">
-              <label class="card-field-label" for="card-expiry">EXPIRY</label>
-              <input type="text" id="card-expiry" class="card-input" placeholder="MM / YY" autocomplete="cc-exp" inputmode="numeric" maxlength="7" oninput="handleExpiryInput(this)"/>
-            </div>
-            <div class="card-field">
-              <label class="card-field-label" for="card-cvv">CVV <span class="card-field-help" title="3-digit code on back of card (4 for Amex)">?</span></label>
-              <input type="text" id="card-cvv" class="card-input" placeholder="3-4 digits" autocomplete="cc-csc" inputmode="numeric" maxlength="4"/>
-            </div>
-          </div>
-
-          <div class="card-field">
-            <label class="card-field-label" for="card-name">NAME ON CARD</label>
-            <input type="text" id="card-name" class="card-input" placeholder="Full name as on card" autocomplete="cc-name"/>
-          </div>
-
-          <div class="card-field">
-            <label class="card-field-label" for="card-email">EMAIL FOR RECEIPT</label>
-            <input type="email" id="card-email" class="card-input" placeholder="your@email.com" autocomplete="email"/>
-          </div>
-
-          <div class="card-secure">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 10V7a6 6 0 1112 0v3M5 10h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>Secure payment · 256-bit SSL encryption</span>
-          </div>
-
-        </div>
-      </div>
-      <div class="pay-panel" id="pp-sinpe">
-        <input class="pay-input" type="tel" placeholder="Your SINPE number"/>
-        <input class="pay-input" type="email" placeholder="your@email.com"/>
-        <div class="pay-sinpe-info" id="sinpe-amt">📲 ₡10,000 → 7019-8460</div>
-      </div>
-      <div class="pay-panel" id="pp-apple">
-        <div class="pay-apple-inner">
-          <div class="icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></div>
-          <div class="title">Apple Pay</div>
-          <div class="sub">Confirm with Face ID or Touch ID on your Apple device.</div>
-        </div>
-      </div>
-      <div class="pay-panel" id="pp-google">
-        <div class="pay-apple-inner">
-          <div class="icon"><svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></div>
-          <div class="title">Google Pay</div>
-          <div class="sub">Confirm with your fingerprint or PIN on your Android device.</div>
-        </div>
-      </div>
-
-      <!-- Section: Discount code -->
-      <div class="edv2-section-hdr"><span class="edv2-section-lbl">Discount code</span></div>
-      <div id="discount-wrap" class="edv2-discount-row">
-        <input class="edv2-discount-input" id="discount-input" type="text" placeholder="Discount code"/>
-        <button onclick="applyDiscount()" class="edv2-apply-btn">Apply</button>
-      </div>
-      <div id="discount-msg" style="font-size:10px;margin-top:-8px;margin-bottom:12px;font-family:-apple-system,'Inter',sans-serif;display:none;"></div>
-
-      <!-- Section: Order summary -->
-      <div class="edv2-section-hdr"><span class="edv2-section-lbl">Order summary</span></div>
-      <div class="edv2-summary">
-        <div class="edv2-summary-row">
-          <span id="ed-qty-label">1 ticket</span>
-          <span id="ed-total">$45.00</span>
-        </div>
-        <div class="edv2-summary-row">
-          <span>Service fee</span>
-          <span>$0.00</span>
-        </div>
-        <div class="edv2-summary-total">
-          <span>Total</span>
-          <span>$45.00</span>
-        </div>
-      </div>
-
-      <!-- CTA -->
-      <button class="edv2-buy-btn" id="ed-buy-btn" onclick="doPay()">Complete purchase</button>
-      <div class="edv2-secure">🔐 Secure · OnvoPay · PCI DSS</div>
-
-    </div><!-- end edv2-right -->
-  </div><!-- end edv2-layout -->
-</div>
+</div><!-- end pg-event-detail -->
 
 <!-- ORGANIZER PAGE -->
 <div class="page" id="pg-organizer">
@@ -738,12 +505,254 @@
   </section>
 </div>
 
+<!-- ══════════ CHECKOUT DRAWER ══════════ -->
+<div id="checkout-drawer" class="checkout-drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Checkout">
+  <div class="checkout-drawer__backdrop" onclick="closeCheckoutDrawer()"></div>
+  <div class="checkout-drawer__panel" role="document">
+
+    <!-- Header: back + progress + close -->
+    <header class="cd-header">
+      <button class="cd-icon-btn cd-back-btn" type="button" onclick="cdBack()" aria-label="Back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="cd-progress" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" aria-label="Checkout progress">
+        <div class="cd-step cd-step--active" data-step="1"><span class="cd-step-num">1</span><span class="cd-step-lbl">TICKET</span></div>
+        <div class="cd-step-sep" aria-hidden="true"></div>
+        <div class="cd-step" data-step="2"><span class="cd-step-num">2</span><span class="cd-step-lbl">DETAILS</span></div>
+        <div class="cd-step-sep" aria-hidden="true"></div>
+        <div class="cd-step" data-step="3"><span class="cd-step-num">3</span><span class="cd-step-lbl">PAYMENT</span></div>
+      </div>
+      <button class="cd-icon-btn cd-close-btn" type="button" onclick="closeCheckoutDrawer()" aria-label="Close checkout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
+
+    <!-- Event strip -->
+    <div class="cd-event-strip">
+      <img class="cd-event-img" id="cd-event-img" src="public/images/rawdeo.jpg" alt=""/>
+      <div class="cd-event-meta">
+        <div class="cd-event-name" id="cd-event-name">RAWDEO 2</div>
+        <div class="cd-event-sub" id="cd-event-meta">Jun 6, 2026 · Pedregal</div>
+      </div>
+    </div>
+
+    <!-- Body: scrollable step content -->
+    <div class="cd-body">
+
+      <!-- ─── STEP 1 — TICKET ─── -->
+      <section class="cd-step-content cd-step-content--active" id="cd-step-1" aria-labelledby="cd-step-1-hdr">
+        <div class="cd-eyebrow" id="cd-step-1-hdr">SELECT TICKET</div>
+        <div class="cd-tier-list">
+          <div class="edv2-ticket-card tier-selectable selected" data-tier-id="vip" onclick="selectTier('vip')">
+            <div class="edv2-ticket-top">
+              <div class="edv2-tier-info">
+                <div class="edv2-tier-name">VIP</div>
+                <div class="edv2-tier-desc">Premium experience</div>
+              </div>
+              <div class="edv2-tier-pricing">
+                <div class="edv2-price-row">
+                  <span class="edv2-price-crc">₡35,000</span>
+                  <span class="edv2-price-usd">~$65</span>
+                </div>
+                <div class="edv2-price-note">FEES INCLUDED</div>
+              </div>
+            </div>
+          </div>
+          <div class="edv2-ticket-card tier-selectable" data-tier-id="early-bird" onclick="selectTier('early-bird')">
+            <div class="edv2-ticket-top">
+              <div class="edv2-tier-info">
+                <div class="edv2-tier-name">EARLY BIRD</div>
+                <div class="edv2-tier-desc">Limited release</div>
+              </div>
+              <div class="edv2-tier-pricing">
+                <div class="edv2-price-row">
+                  <span class="edv2-price-crc">₡15,000</span>
+                  <span class="edv2-price-usd">~$28</span>
+                </div>
+                <div class="edv2-price-note">FEES INCLUDED</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cd-eyebrow cd-eyebrow--spaced">QUANTITY</div>
+        <div class="cd-qty-row">
+          <button class="cd-qty-btn" type="button" onclick="chQ(-1)" aria-label="Decrease quantity">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <span class="cd-qty-num" id="ed-q">1</span>
+          <button class="cd-qty-btn" type="button" onclick="chQ(1)" aria-label="Increase quantity">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="cd-qty-hint">Max 10 tickets per purchase</div>
+      </section>
+
+      <!-- ─── STEP 2 — DETAILS ─── -->
+      <section class="cd-step-content" id="cd-step-2" aria-label="Your details">
+        <section class="checkout-auth-section" id="checkout-auth-section"></section>
+
+        <section class="attendee-section" id="attendee-section">
+          <div class="attendee-list" id="attendee-list"></div>
+          <div class="attendee-warning" id="attendee-warning">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Complete all required fields to continue</span>
+          </div>
+        </section>
+      </section>
+
+      <!-- ─── STEP 3 — PAYMENT ─── -->
+      <section class="cd-step-content" id="cd-step-3" aria-labelledby="cd-step-3-hdr">
+        <div class="cd-eyebrow" id="cd-step-3-hdr">PAYMENT METHOD</div>
+        <div class="pay-opts-list">
+          <div class="pay-opt on" data-pay="card" onclick="selPay('card')">
+            <div class="pay-opt-icon">
+              <svg width="28" height="20" viewBox="0 0 24 18" fill="none"><rect x="1" y="1" width="22" height="16" rx="2.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="5" width="22" height="3.5" fill="currentColor"/><rect x="4" y="12" width="6" height="2" rx="0.5" fill="currentColor"/></svg>
+            </div>
+            <div class="pay-opt-info">
+              <div class="pay-opt-name">Credit / Debit Card</div>
+              <div class="pay-opt-brands">
+                <div class="pay-brand-mini"><svg width="22" height="14" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1f71"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" font-style="italic">VISA</text></svg></div>
+                <div class="pay-brand-mini"><svg width="22" height="14" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1a1a"/><circle cx="19" cy="16" r="9" fill="#eb001b"/><circle cx="29" cy="16" r="9" fill="#f79e1b" fill-opacity="0.85"/></svg></div>
+                <div class="pay-brand-mini"><svg width="22" height="14" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#006fcf"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle">AMEX</text></svg></div>
+              </div>
+            </div>
+          </div>
+          <div class="pay-opt" data-pay="sinpe" onclick="selPay('sinpe')">
+            <div class="pay-opt-icon">
+              <svg width="32" height="22" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#003087"/><text x="24" y="15" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">SINPE</text><text x="24" y="26" font-family="Arial,sans-serif" font-weight="400" font-size="7" fill="#ffffff" text-anchor="middle" font-style="italic">Móvil</text></svg>
+            </div>
+            <div class="pay-opt-info">
+              <div class="pay-opt-name">SINPE Móvil</div>
+              <div class="pay-opt-sub">Instant transfer · CR</div>
+            </div>
+          </div>
+          <div class="pay-opt" data-pay="apple" onclick="selPay('apple')">
+            <div class="pay-opt-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 12.5c0-2.5 2-3.7 2.1-3.8-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.6.9-.7 0-1.9-.9-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 2.9 2.4 1.2 0 1.6-.8 3.1-.8 1.4 0 1.8.8 3.1.7 1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.6-2.1-.8-4.5-1.7-4.5-4.7zM15.2 5.1c.6-.8 1.1-1.9 1-2.9-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.8 1 .1 2.1-.5 2.7-1.3z"/></svg>
+            </div>
+            <div class="pay-opt-info">
+              <div class="pay-opt-name">Apple Pay</div>
+              <div class="pay-opt-sub">Face ID · Touch ID</div>
+            </div>
+          </div>
+          <div class="pay-opt" data-pay="google" onclick="selPay('google')">
+            <div class="pay-opt-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            </div>
+            <div class="pay-opt-info">
+              <div class="pay-opt-name">Google Pay</div>
+              <div class="pay-opt-sub">Fingerprint · PIN</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment panels -->
+        <div class="pay-panel show" id="pp-card">
+          <div class="card-form">
+            <div class="card-field">
+              <label class="card-field-label" for="card-number">CARD NUMBER</label>
+              <div class="card-input-wrapper">
+                <input type="text" id="card-number" class="card-input" placeholder="1234 5678 9012 3456" autocomplete="cc-number" inputmode="numeric" maxlength="19" oninput="handleCardNumberInput(this)"/>
+                <div class="card-brand-display" id="card-brand-display">
+                  <div class="card-brand-multi">
+                    <div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1f71"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" font-style="italic">VISA</text></svg></div>
+                    <div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#1a1a1a"/><circle cx="19" cy="16" r="9" fill="#eb001b"/><circle cx="29" cy="16" r="9" fill="#f79e1b" fill-opacity="0.85"/></svg></div>
+                    <div class="card-brand-mini-item"><svg width="24" height="16" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#006fcf"/><text x="24" y="21" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#ffffff" text-anchor="middle">AMEX</text></svg></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-field-row">
+              <div class="card-field">
+                <label class="card-field-label" for="card-expiry">EXPIRY</label>
+                <input type="text" id="card-expiry" class="card-input" placeholder="MM / YY" autocomplete="cc-exp" inputmode="numeric" maxlength="7" oninput="handleExpiryInput(this)"/>
+              </div>
+              <div class="card-field">
+                <label class="card-field-label" for="card-cvv">CVV</label>
+                <input type="text" id="card-cvv" class="card-input" placeholder="3-4 digits" autocomplete="cc-csc" inputmode="numeric" maxlength="4"/>
+              </div>
+            </div>
+            <div class="card-field">
+              <label class="card-field-label" for="card-name">NAME ON CARD</label>
+              <input type="text" id="card-name" class="card-input" placeholder="Full name as on card" autocomplete="cc-name"/>
+            </div>
+            <div class="card-secure">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 10V7a6 6 0 1112 0v3M5 10h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Secure payment · 256-bit SSL encryption</span>
+            </div>
+          </div>
+        </div>
+        <div class="pay-panel" id="pp-sinpe">
+          <input class="pay-input" type="tel" placeholder="Your SINPE number"/>
+          <div class="pay-sinpe-info" id="sinpe-amt">📲 ₡10,000 → 7019-8460</div>
+        </div>
+        <div class="pay-panel" id="pp-apple">
+          <div class="pay-apple-inner">
+            <div class="title">Apple Pay</div>
+            <div class="sub">Tap COMPLETE PURCHASE to confirm with Face ID or Touch ID.</div>
+          </div>
+        </div>
+        <div class="pay-panel" id="pp-google">
+          <div class="pay-apple-inner">
+            <div class="title">Google Pay</div>
+            <div class="sub">Tap COMPLETE PURCHASE to confirm with fingerprint or PIN.</div>
+          </div>
+        </div>
+
+        <!-- Promo code (collapsible) -->
+        <details class="cd-promo">
+          <summary>Have a promo code?</summary>
+          <div id="discount-wrap" class="edv2-discount-row">
+            <input class="edv2-discount-input" id="discount-input" type="text" placeholder="Enter code"/>
+            <button onclick="applyDiscount()" class="edv2-apply-btn" type="button">Apply</button>
+          </div>
+          <div id="discount-msg" class="cd-discount-msg"></div>
+        </details>
+
+        <!-- Order summary -->
+        <div class="cd-summary">
+          <div class="cd-summary-row">
+            <span id="ed-qty-label">1 ticket</span>
+            <span id="ed-total">₡35,000</span>
+          </div>
+          <div class="cd-summary-row cd-summary-row--muted">
+            <span>Service fee</span>
+            <span>₡0</span>
+          </div>
+          <div class="cd-summary-total">
+            <span>Total</span>
+            <span id="cd-summary-total-amt">₡35,000</span>
+          </div>
+        </div>
+
+        <div class="cd-trust">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 10V7a6 6 0 1112 0v3M5 10h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Secure · Onvopay · PCI DSS</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Sticky CTA footer -->
+    <footer class="cd-footer">
+      <div class="cd-footer-hint" id="cd-footer-hint" style="display:none"></div>
+      <button class="cd-cta" id="cd-cta" type="button" onclick="cdNext()">CHECKOUT · ₡35,000</button>
+    </footer>
+  </div>
+</div>
+
 <div class="confirm-screen" id="confirm-screen">
   <div class="confirm-container">
 
     <!-- Header (full width, above grid) -->
     <div class="confirm-header">
-      <span class="confirm-chip">✦ TICKET CONFIRMED</span>
+      <div class="cd-progress cd-progress--done" aria-hidden="true">
+        <div class="cd-step cd-step--done"><span class="cd-step-num">✓</span><span class="cd-step-lbl">TICKET</span></div>
+        <div class="cd-step-sep"></div>
+        <div class="cd-step cd-step--done"><span class="cd-step-num">✓</span><span class="cd-step-lbl">DETAILS</span></div>
+        <div class="cd-step-sep"></div>
+        <div class="cd-step cd-step--done"><span class="cd-step-num">✓</span><span class="cd-step-lbl">PAYMENT</span></div>
+      </div>
       <button class="confirm-close" onclick="closeConfirm()" aria-label="Close">✕</button>
     </div>
 
@@ -773,25 +782,29 @@
             <path d="M13 21l6 6 10-12" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h2 class="confirm-title">
-          <span class="confirm-title-line1">YOU'RE</span>
-          <span class="confirm-title-line2">IN.</span>
+        <h2 class="confirm-title confirm-title--v2">
+          You're <em>in<span class="confirm-dot">.</span></em>
         </h2>
         <p class="confirm-subtitle">
-          Your ticket is confirmed. See you at <span id="confirm-subtitle-event">event</span>.
+          Ticket confirmed. Check your email for the PDF + QR.
         </p>
         <div class="confirm-details" id="confirm-details">
           1 ticket · Tier · ₡0
         </div>
         <div class="confirm-qr-wrap">
           <div class="confirm-qr" id="confirm-qr"></div>
+          <div class="confirm-qr-order" id="confirm-qr-order"></div>
         </div>
+        <button class="confirm-btn-primary" onclick="downloadTicketPDF()" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          DOWNLOAD PDF
+        </button>
         <button class="wallet-btn-apple" id="confirm-wallet-btn" onclick="addToWallet()">
           <svg class="wallet-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5,12.5c0-2.5,2-3.7,2.1-3.8c-1.1-1.7-2.9-1.9-3.5-1.9c-1.5-0.2-2.9,0.9-3.6,0.9c-0.7,0-1.9-0.9-3.1-0.8c-1.6,0-3.1,0.9-3.9,2.4c-1.7,2.9-0.4,7.2,1.2,9.5c0.8,1.1,1.7,2.4,2.9,2.4c1.2,0,1.6-0.8,3.1-0.8c1.4,0,1.8,0.8,3.1,0.7c1.3,0,2.1-1.2,2.9-2.3c0.9-1.3,1.3-2.6,1.3-2.6C19.9,16.1,17.5,15.2,17.5,12.5z M15.2,5.1c0.6-0.8,1.1-1.9,1-2.9c-0.9,0-2,0.6-2.7,1.4c-0.6,0.7-1.1,1.8-1,2.8C13.5,6.5,14.6,5.9,15.2,5.1z"/></svg>
           <span id="confirm-wallet-text">Add to Apple Wallet</span>
         </button>
-        <button class="confirm-btn-secondary" onclick="closeConfirm();goPage('my-tickets')">
-          VIEW MY TICKETS →
+        <button class="confirm-btn-link" onclick="closeConfirm();goPage('my-tickets')" type="button">
+          View in My Tickets →
         </button>
       </div>
 

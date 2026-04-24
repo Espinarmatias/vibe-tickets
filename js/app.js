@@ -4,8 +4,14 @@
 // ════════════════════════════════════════════════════════════════
 
 // ─── STATE ───────────────────────────────────────────────────────
-var tickets        = [];
-var userTickets = [];
+var USER_TICKETS_KEY = 'vibe_user_tickets';
+var userTickets = (function(){
+  try {
+    var raw = localStorage.getItem(USER_TICKETS_KEY);
+    var parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) { return []; }
+})();
 var myTicketsTab = 'upcoming';
 var currentEvent   = "rawdeo";
 var qty            = 1;
@@ -121,7 +127,10 @@ function authVerifyEmail() {
 
 function authLogout(skipRedirect) {
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem(USER_TICKETS_KEY);
   userTickets = [];
+  var badge = document.getElementById('menu-ticket-badge');
+  if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
   renderAuthState();
   if (!skipRedirect) goPage('home');
 }
@@ -179,46 +188,53 @@ function renderAttendeeFields() {
   var list = document.getElementById('attendee-list');
   if (!list) return;
 
-  var tierName  = currentTier ? currentTier.name : 'GENERAL';
-  var tierPrice = currentTier ? currentTier.priceCRC : 0;
-
   // Sync attendeeData length to qty (preserve existing entries)
   while (attendeeData.length < qty)  { attendeeData.push({ name: '', email: '' }); }
   while (attendeeData.length > qty)  { attendeeData.pop(); }
 
-  // Auto-fill Attendee 1 with logged-in user data if slot is still empty
+  // Buyer (attendeeData[0]) is populated by the auth section, not here.
+  // If the user is logged in and slot 0 is empty, pre-fill from session.
   var _authUser = authCurrentUser();
-  if (_authUser && attendeeData[0] && !attendeeData[0].name && !attendeeData[0].email) {
+  if (_authUser && attendeeData[0] && !attendeeData[0].name) {
     attendeeData[0].name  = _authUser.fullName || ((_authUser.firstName || '') + ' ' + (_authUser.lastName || '')).trim();
     attendeeData[0].email = _authUser.email;
   }
 
-  var html = '';
-  for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i];
+  // Only render "OTHER ATTENDEES" when qty >= 2
+  if (qty < 2) { list.innerHTML = ''; validateAttendees(); return; }
+
+  var tierName = currentTier ? currentTier.name : 'GENERAL';
+  var html =
+    '<div class="attendee-extra-header">' +
+      '<div class="attendee-extra-eyebrow">OTHER ATTENDEES</div>' +
+      '<div class="attendee-extra-desc">Each ticket needs a name. We\u2019ll send all QRs to your email above.</div>' +
+    '</div>';
+
+  for (var i = 1; i < qty; i++) {
+    var a = attendeeData[i] || { name: '' };
+    var parts = (a.name || '').split(' ');
+    var first = parts[0] || '';
+    var last  = parts.slice(1).join(' ');
     html +=
       '<div class="attendee-ticket">' +
         '<div class="attendee-ticket-header">' +
-          '<div class="attendee-ticket-label">TICKET ' + (i + 1) + ' · ' + tierName + '</div>' +
-          '<div class="attendee-ticket-price">' + formatCRC(tierPrice) + '</div>' +
+          '<div class="attendee-ticket-label">TICKET ' + (i + 1) + ' \u00b7 ' + tierName + '</div>' +
         '</div>' +
-        '<div class="attendee-fields">' +
+        '<div class="attendee-fields attendee-fields--split">' +
           '<div>' +
-            '<label class="attendee-field-label" for="att-name-' + i + '">FULL NAME</label>' +
-            '<input type="text" class="attendee-input" id="att-name-' + i + '" ' +
-                   'value="' + escapeHtml(a.name) + '" placeholder="Full name" ' +
-                   'autocomplete="name" ' +
-                   'oninput="updateAttendee(' + i + ',\'name\',this.value)" ' +
-                   'onchange="updateAttendee(' + i + ',\'name\',this.value)" ' +
+            '<label class="attendee-field-label" for="att-first-' + i + '">FIRST NAME</label>' +
+            '<input type="text" class="attendee-input" id="att-first-' + i + '" ' +
+                   'value="' + escapeHtml(first) + '" placeholder="First name" ' +
+                   'autocomplete="given-name" ' +
+                   'oninput="updateAttendeeName(' + i + ')" ' +
                    'onblur="onAttendeeBlur()"/>' +
           '</div>' +
           '<div>' +
-            '<label class="attendee-field-label" for="att-email-' + i + '">EMAIL</label>' +
-            '<input type="email" class="attendee-input" id="att-email-' + i + '" ' +
-                   'value="' + escapeHtml(a.email) + '" placeholder="email@example.com" ' +
-                   'autocomplete="email" ' +
-                   'oninput="updateAttendee(' + i + ',\'email\',this.value)" ' +
-                   'onchange="updateAttendee(' + i + ',\'email\',this.value)" ' +
+            '<label class="attendee-field-label" for="att-last-' + i + '">LAST NAME</label>' +
+            '<input type="text" class="attendee-input" id="att-last-' + i + '" ' +
+                   'value="' + escapeHtml(last) + '" placeholder="Last name" ' +
+                   'autocomplete="family-name" ' +
+                   'oninput="updateAttendeeName(' + i + ')" ' +
                    'onblur="onAttendeeBlur()"/>' +
           '</div>' +
         '</div>' +
@@ -228,25 +244,50 @@ function renderAttendeeFields() {
   validateAttendees();
 }
 
-function updateAttendee(index, field, value) {
+function updateAttendeeName(index) {
+  var f = document.getElementById('att-first-' + index);
+  var l = document.getElementById('att-last-' + index);
   if (!attendeeData[index]) attendeeData[index] = { name: '', email: '' };
-  attendeeData[index][field] = value.trim();
+  attendeeData[index].name = ((f ? f.value.trim() : '') + ' ' + (l ? l.value.trim() : '')).trim();
+  validateAttendees();
+}
+
+function updateBuyerField(field, value) {
+  if (!attendeeData[0]) attendeeData[0] = { name: '', email: '' };
+  if (field === 'email') {
+    attendeeData[0].email = value.trim();
+  } else {
+    // first / last → recompose full name
+    var firstEl = document.getElementById('ca-first');
+    var lastEl  = document.getElementById('ca-last');
+    attendeeData[0].name = ((firstEl ? firstEl.value.trim() : '') + ' ' + (lastEl ? lastEl.value.trim() : '')).trim();
+  }
   validateAttendees();
 }
 
 function validateAttendees() {
   var emailRe  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   var allValid = true;
+  var user = authCurrentUser();
 
-  for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i] || { name: '', email: '' };
-    if (!a.name || !a.email || !emailRe.test(a.email)) {
-      allValid = false;
-      break;
+  var buyer = attendeeData[0] || { name: '', email: '' };
+  var buyerEmail = user ? user.email : buyer.email;
+  var buyerName  = user ? (user.fullName || ((user.firstName || '') + ' ' + (user.lastName || '')).trim()) : buyer.name;
+  if (!buyerEmail || !emailRe.test(buyerEmail) || !buyerName) allValid = false;
+
+  // Terms checkbox (only required when not yet logged in)
+  if (!user) {
+    var terms = document.getElementById('ca-terms-check');
+    if (!terms || !terms.checked) allValid = false;
+  }
+
+  if (allValid) {
+    for (var i = 1; i < qty; i++) {
+      var a = attendeeData[i] || { name: '' };
+      if (!a.name) { allValid = false; break; }
     }
   }
 
-  // Warning only shows after user has interacted (blur) or clicked pay
   var warning = document.getElementById('attendee-warning');
   if (warning) {
     if (attendeeValidationTriggered && !allValid) {
@@ -256,23 +297,13 @@ function validateAttendees() {
     }
   }
 
-  var btn = document.getElementById('ed-buy-btn');
-  if (btn) {
-    btn.disabled = !allValid;
-    btn.classList.toggle('btn-disabled', !allValid);
-  }
-
   return allValid;
 }
 
 function onAttendeeBlur() {
-  for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i] || { name: '', email: '' };
-    // If user typed something but left a field incomplete, trigger warning
-    if ((a.name && !a.email) || (!a.name && a.email)) {
-      attendeeValidationTriggered = true;
-      break;
-    }
+  for (var i = 1; i < qty; i++) {
+    var a = attendeeData[i] || { name: '' };
+    if (!a.name) { attendeeValidationTriggered = true; break; }
   }
   validateAttendees();
 }
@@ -385,103 +416,75 @@ function renderCheckoutAuth() {
   var user = authCurrentUser();
 
   if (user) {
-    // Estado 2: logged in — green badge
-    var displayName = escapeHtml(user.fullName || user.firstName || user.email.split('@')[0]);
     var displayEmail = escapeHtml(user.email);
     section.innerHTML =
-      '<div class="ca-logged-badge">' +
-        '<svg class="ca-logged-check" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
-          '<circle cx="12" cy="12" r="10" stroke="#6ab04c" stroke-width="1.5"/>' +
-          '<path d="M8 12l3 3 6-6" stroke="#6ab04c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-        '<div class="ca-logged-info">' +
-          '<div class="ca-logged-eyebrow">LOGGED IN</div>' +
-          '<div class="ca-logged-user">Continue as <strong>' + displayName + '</strong><span class="ca-logged-email"> · ' + displayEmail + '</span></div>' +
+      '<div class="ca-buying-as">' +
+        '<div class="ca-buying-info">' +
+          '<span class="ca-buying-label">Buying as</span>' +
+          '<span class="ca-buying-email">' + displayEmail + '</span>' +
         '</div>' +
-        '<button type="button" class="ca-logged-switch" onclick="handleCheckoutSwitchUser()">NOT YOU?</button>' +
+        '<button type="button" class="ca-buying-edit" onclick="handleCheckoutSwitchUser()">Not you?</button>' +
       '</div>';
     return;
   }
 
-  // Estado 1 (signup) o 3 (login)
-  var isSignup = (checkoutAuthMode === 'signup');
-  var googleSVG   = getGoogleLogoSVG();
-  var googleText  = isSignup ? 'Continue with Google' : 'Sign in with Google';
-  var googleBadge = isSignup ? '<span class="ca-google-badge">30 sec</span>' : '';
-  var dividerText = isSignup ? 'OR USE EMAIL' : 'OR';
+  var buyer = attendeeData[0] || { name: '', email: '' };
+  var parts = (buyer.name || '').split(' ');
+  var firstVal = escapeHtml(parts[0] || '');
+  var lastVal  = escapeHtml(parts.slice(1).join(' '));
+  var emailVal = escapeHtml(buyer.email || '');
 
-  var headerHTML = isSignup
-    ? '<div class="ca-header">' +
-        '<div class="ca-eyebrow">CREATE ACCOUNT TO CONTINUE</div>' +
-        '<div class="ca-description">Required to send your ticket and access My Tickets. Takes 30 seconds.</div>' +
-      '</div>'
-    : '<div class="ca-header">' +
-        '<div class="ca-eyebrow">LOG IN TO CONTINUE</div>' +
-        '<div class="ca-description">Sign in with your existing VIBE account.</div>' +
-      '</div>';
-
-  var formFields = isSignup
-    ? '<div class="ca-row">' +
-        '<div class="ca-field">' +
-          '<label class="ca-label" for="ca-first">FIRST NAME</label>' +
-          '<input type="text" class="ca-input" id="ca-first" autocomplete="given-name" required />' +
-        '</div>' +
-        '<div class="ca-field">' +
-          '<label class="ca-label" for="ca-last">LAST NAME</label>' +
-          '<input type="text" class="ca-input" id="ca-last" autocomplete="family-name" required />' +
-        '</div>' +
-      '</div>' +
-      '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-email">EMAIL</label>' +
-        '<input type="email" class="ca-input" id="ca-email" placeholder="you@gmail.com" autocomplete="email" required />' +
-      '</div>' +
-      '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-password">PASSWORD</label>' +
-        '<input type="password" class="ca-input" id="ca-password" placeholder="At least 8 characters" minlength="8" autocomplete="new-password" required />' +
-      '</div>'
-    : '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-email">EMAIL</label>' +
-        '<input type="email" class="ca-input" id="ca-email" placeholder="you@gmail.com" autocomplete="email" required />' +
-      '</div>' +
-      '<div class="ca-field">' +
-        '<label class="ca-label" for="ca-password">PASSWORD</label>' +
-        '<input type="password" class="ca-input" id="ca-password" placeholder="Your password" autocomplete="current-password" required />' +
-      '</div>';
-
-  var submitHandler = isSignup ? 'handleCheckoutSignup(event)' : 'handleCheckoutLogin(event)';
-
-  var termsHTML = isSignup
-    ? 'By creating an account you agree to our <a href="#" class="ca-link" onclick="return false">Terms</a> and <a href="#" class="ca-link" onclick="return false">Privacy Policy</a>. Already have an account? <a href="#" onclick="switchCheckoutAuthMode(\'login\'); return false;" class="ca-link ca-link-strong">Log in</a>'
-    : 'Don\'t have an account? <a href="#" onclick="switchCheckoutAuthMode(\'signup\'); return false;" class="ca-link ca-link-strong">Sign up</a>';
-
-  var appleText = isSignup ? 'Continue with Apple' : 'Sign in with Apple';
+  var googleSVG = getGoogleLogoSVG();
   var appleSVG  = '<svg class="apple-logo" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.41-1.09-.47-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.41C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>';
 
   section.innerHTML =
-    headerHTML +
+    '<div class="ca-header">' +
+      '<div class="ca-eyebrow">YOUR INFORMATION</div>' +
+      '<div class="ca-description">We\u2019ll send your ticket QR to this email.</div>' +
+    '</div>' +
     '<div class="ca-card">' +
       '<div class="ca-oauth-row">' +
         '<button type="button" class="ca-google-btn" onclick="handleCheckoutGoogleAuth()">' +
           googleSVG +
-          '<span class="ca-google-text">' + googleText + '</span>' +
-          googleBadge +
+          '<span class="ca-google-text">Continue with Google</span>' +
         '</button>' +
-        '<button type="button" class="ca-apple-btn" onclick="handleCheckoutAppleAuth()" aria-label="' + appleText + '">' +
+        '<button type="button" class="ca-apple-btn" onclick="handleCheckoutAppleAuth()" aria-label="Continue with Apple">' +
           appleSVG +
-          '<span class="ca-apple-text">' + appleText + '</span>' +
+          '<span class="ca-apple-text">Continue with Apple</span>' +
         '</button>' +
       '</div>' +
       '<div class="ca-divider">' +
         '<span class="ca-divider-line"></span>' +
-        '<span class="ca-divider-text">' + dividerText + '</span>' +
+        '<span class="ca-divider-text">OR USE EMAIL</span>' +
         '<span class="ca-divider-line"></span>' +
       '</div>' +
-      '<form class="ca-form" onsubmit="' + submitHandler + '">' +
-        formFields +
+      '<div class="ca-form">' +
+        '<div class="ca-field">' +
+          '<label class="ca-label" for="ca-email">EMAIL</label>' +
+          '<input type="email" class="ca-input" id="ca-email" placeholder="your@email.com" autocomplete="email" ' +
+                 'value="' + emailVal + '" ' +
+                 'oninput="updateBuyerField(\'email\', this.value)" onblur="onAttendeeBlur()" />' +
+        '</div>' +
+        '<div class="ca-row">' +
+          '<div class="ca-field">' +
+            '<label class="ca-label" for="ca-first">FIRST NAME</label>' +
+            '<input type="text" class="ca-input" id="ca-first" placeholder="First name" autocomplete="given-name" ' +
+                   'value="' + firstVal + '" ' +
+                   'oninput="updateBuyerField(\'first\', this.value)" onblur="onAttendeeBlur()" />' +
+          '</div>' +
+          '<div class="ca-field">' +
+            '<label class="ca-label" for="ca-last">LAST NAME</label>' +
+            '<input type="text" class="ca-input" id="ca-last" placeholder="Last name" autocomplete="family-name" ' +
+                   'value="' + lastVal + '" ' +
+                   'oninput="updateBuyerField(\'last\', this.value)" onblur="onAttendeeBlur()" />' +
+          '</div>' +
+        '</div>' +
+        '<label class="ca-terms-check-row">' +
+          '<input type="checkbox" id="ca-terms-check" onchange="validateAttendees()"/>' +
+          '<span>I agree to the <a href="#" class="ca-link" onclick="return false">Terms</a> and <a href="#" class="ca-link" onclick="return false">Privacy Policy</a>.</span>' +
+        '</label>' +
         '<div class="ca-error" id="ca-error"></div>' +
-        '<button type="submit" class="ca-submit-btn" style="display:none"></button>' +
-      '</form>' +
-      '<div class="ca-terms">' + termsHTML + '</div>' +
+      '</div>' +
     '</div>';
 }
 
@@ -630,6 +633,7 @@ function updTotals() {
   if (totalEl) totalEl.innerHTML = disp;
   var lblEl = document.getElementById("ed-qty-label");
   if (lblEl) lblEl.textContent = lbl;
+  if (typeof updateDrawerCTA === 'function') updateDrawerCTA();
 }
 
 
@@ -795,40 +799,32 @@ function doPay() {
     if (warning) warning.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  var btn = document.getElementById("ed-buy-btn");
+  var btn = document.getElementById("cd-cta") || document.getElementById("ed-buy-btn");
   if (!btn) return;
-  btn.textContent = "⏳ Processing...";
+  var originalLabel = btn.textContent;
+  btn.textContent = "PROCESSING…";
   btn.disabled = true;
+  btn.classList.add("cd-cta--processing");
   setTimeout(function() {
     var ev   = EVENTS[currentEvent];
     var tier = currentTier || (ev.tiers ? ev.tiers.find(function(t){ return !t.soldout && (t.capacity - t.sold) > 0; }) || ev.tiers[0] : ev);
-    var price    = tier.price    !== undefined ? tier.price    : ev.price;
     var priceCRC = tier.priceCRC !== undefined ? tier.priceCRC : ev.priceCRC;
-    var t        = qty * price;
-    var tc       = qty * priceCRC;
     var code     = "VB-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-    var totalStr = price === 0 ? "Complimentary" : (payM === "sinpe" ? "₡" + tc.toLocaleString() : "$" + t);
     var tierName = tier.name || "General";
 
-    tickets.push({
-      ev: ev.name, date: ev.date, place: ev.place,
-      qty: qty + " ticket" + (qty > 1 ? "s" : ""),
-      total: totalStr, code: code, tier: tierName,
-      isRawdeo: ev.isRawdeo, isMansita: ev.isMansita
-    });
+    addPurchaseToUserTickets();
 
-    // Update My Tickets list and nav badge immediately
-    renderTickets();
     var badge = document.getElementById("menu-ticket-badge");
     if (badge) {
-      badge.textContent = tickets.length;
-      badge.style.display = "inline-flex";
+      badge.textContent = userTickets.length;
+      badge.style.display = userTickets.length ? "inline-flex" : "none";
     }
 
-    btn.textContent = "🔒 Complete purchase";
+    btn.textContent = originalLabel;
     btn.disabled = false;
+    btn.classList.remove("cd-cta--processing");
 
-    addPurchaseToUserTickets();
+    closeCheckoutDrawer(true);
     showConfirmation({
       id: currentEvent,
       name: ev.name,
@@ -840,7 +836,7 @@ function doPay() {
       total: qty * priceCRC,
       ticketId: code
     });
-  }, 1800);
+  }, 1400);
 }
 
 function closeConfirm() {
@@ -852,8 +848,11 @@ function closeConfirm() {
 function addPurchaseToUserTickets() {
   var ev = EVENTS[currentEvent];
   var eventImage = ev.isMansita ? MANSITA_B64 : RAWDEO_B64;
+  var buyer = attendeeData[0] || { name: 'Guest', email: '' };
+  var buyerEmail = buyer.email || (authCurrentUser() && authCurrentUser().email) || '';
   for (var i = 0; i < qty; i++) {
-    var a = attendeeData[i] || { name: 'Guest', email: '' };
+    var a = attendeeData[i] || { name: '' };
+    var name = (i === 0) ? (buyer.name || 'Guest') : (a.name || buyer.name || 'Guest');
     userTickets.push({
       ticketId: 'TKT-' + Date.now() + '-' + i,
       eventId: currentEvent,
@@ -864,13 +863,14 @@ function addPurchaseToUserTickets() {
       eventImage: eventImage,
       tierId: currentTier ? currentTier.id : 'general',
       tierName: currentTier ? currentTier.name : 'GENERAL',
-      attendeeName: a.name || 'Guest',
-      attendeeEmail: a.email || '',
+      attendeeName: name,
+      attendeeEmail: buyerEmail,
       priceCRC: currentTier ? currentTier.priceCRC : 0,
       purchasedAt: new Date().toISOString()
     });
   }
   attendeeData = [];
+  try { localStorage.setItem(USER_TICKETS_KEY, JSON.stringify(userTickets)); } catch (e) {}
 }
 
 // ─── EMAIL VERIFICATION BANNER ───────────────────────────────────
@@ -1015,10 +1015,12 @@ function showConfirmation(data) {
   var screen = document.getElementById('confirm-screen');
   if (!screen) return;
 
-  document.getElementById('confirm-event-name').textContent = data.name;
-  document.getElementById('confirm-event-date').textContent = data.date;
-  document.getElementById('confirm-event-venue').textContent = data.venue;
-  document.getElementById('confirm-subtitle-event').textContent = data.name;
+  var setText = function(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+  setText('confirm-event-name', data.name);
+  setText('confirm-event-date', data.date);
+  setText('confirm-event-venue', data.venue);
+  setText('confirm-subtitle-event', data.name);
+  setText('confirm-qr-order', 'Order ' + (data.ticketId || ''));
 
   var imgEl = document.getElementById('confirm-event-img');
   if (imgEl && data.image) {
@@ -1087,47 +1089,6 @@ function setWalletButton() {
   var currentIcon = btn.querySelector('.wallet-icon');
   if (currentIcon) currentIcon.outerHTML = iconSVG;
   else btn.insertAdjacentHTML('afterbegin', iconSVG);
-}
-
-
-// ─── MY TICKETS ───────────────────────────────────────────────────
-function renderTickets() {
-  var c = document.getElementById("mt-content");
-  if (!c) return;
-  if (!tickets.length) {
-    c.innerHTML = '<div class="mt-empty"><div class="mt-empty-icon">🎟</div><div class="mt-empty-title">No tickets yet</div><div class="mt-empty-sub">Buy your first ticket and it will show up here</div></div>';
-    var btn = document.createElement("button");
-    btn.className = "btn-primary";
-    btn.style = "margin: 0 auto; display: block;";
-    btn.textContent = "View events";
-    btn.onclick = function() { goPage("home"); };
-    c.querySelector(".mt-empty").appendChild(btn);
-    return;
-  }
-  var html = '<div class="mt-grid">';
-  tickets.forEach(function(t) {
-    var imgHtml = t.isRawdeo
-      ? '<img src="' + RAWDEO_B64 + '" alt="event" style="width:100%;height:100%;object-fit:cover;"/>'
-      : t.isMansita
-      ? '<img src="' + MANSITA_B64 + '" alt="event" style="width:100%;height:100%;object-fit:cover;"/>'
-      : '<div style="width:100%;height:100%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:36px;">🎟</div>';
-    html += '<div class="mt-card">';
-    html += '<div class="mt-card-banner">' + imgHtml + '</div>';
-    html += '<div class="mt-card-body">';
-    html += '<div class="mt-card-name">' + t.ev + '</div>';
-    html += '<div class="mt-card-sub">' + t.date + ' · ' + t.place + '</div>';
-    html += '<div class="mt-card-divider"></div>';
-    html += '<div class="mt-card-qr-row">';
-    html += '<div class="mt-card-qr"><img src="' + QR_B64 + '" alt="QR"/></div>';
-    html += '<div class="mt-card-info">';
-    html += '<div class="mt-info-row"><span class="mt-info-k">Tickets</span><span class="mt-info-v">' + t.qty + '</span></div>';
-    html += '<div class="mt-info-row"><span class="mt-info-k">Total</span><span class="mt-info-v">' + t.total + '</span></div>';
-    html += '<div class="mt-code">' + t.code + '</div>';
-    html += '<button onclick="addToWallet()" style="margin-top:12px;width:100%;background:#000;border:none;border-radius:10px;padding:11px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg><span style="color:white;font-family:\'Barlow\',sans-serif;font-size:13px;font-weight:500;">Add to Apple Wallet</span></button>';
-    html += '</div></div></div></div>';
-  });
-  html += '</div>';
-  c.innerHTML = html;
 }
 
 
@@ -1776,6 +1737,208 @@ function initCarouselAutoScroll() {
   setTimeout(function() { requestAnimationFrame(step); }, 120);
 }
 
+// ─── CHECKOUT DRAWER ──────────────────────────────────────────────
+var cdCurrentStep = 1;
+var _cdLastFocus = null;
+var _cdKeyHandler = null;
+
+function cdFocusables(root) {
+  if (!root) return [];
+  var sel = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  return Array.prototype.slice.call(root.querySelectorAll(sel)).filter(function(el) {
+    return el.offsetParent !== null || el.getClientRects().length > 0;
+  });
+}
+
+function openCheckoutDrawer() {
+  var drawer = document.getElementById('checkout-drawer');
+  if (!drawer) return;
+
+  // Reset checkout state (mirrors openCheckout body)
+  discountApplied = false; discountPct = 0;
+  var di = document.getElementById('discount-input');
+  var dm = document.getElementById('discount-msg');
+  if (di) { di.value = ''; di.disabled = false; }
+  if (dm) { dm.style.display = 'none'; dm.textContent = ''; }
+  qty = 1;
+  payM = 'card';
+  currentTier = null;
+  attendeeData = [];
+  attendeeValidationTriggered = false;
+
+  if (!currentEvent) currentEvent = 'rawdeo';
+  var ev = EVENTS[currentEvent];
+
+  // Sync drawer event strip
+  var stripImg = document.getElementById('cd-event-img');
+  var stripName = document.getElementById('cd-event-name');
+  var stripMeta = document.getElementById('cd-event-meta');
+  if (stripImg) stripImg.src = ev.isMansita ? MANSITA_B64 : RAWDEO_B64;
+  if (stripName) stripName.textContent = ev.name;
+  if (stripMeta) stripMeta.textContent = ev.date + ' · ' + ev.place;
+
+  // Sync quantity widget
+  var qEl = document.getElementById('ed-q');
+  if (qEl) qEl.textContent = qty;
+
+  // Default tier + totals
+  var firstAvail = (ev.tiers || []).find(function(t){ return !t.soldout && (t.capacity - t.sold) > 0; });
+  if (firstAvail) selectTier(firstAvail.id);
+  else updTotals();
+
+  // Default payment panel
+  document.querySelectorAll('.pay-panel').forEach(function(p){ p.classList.remove('show'); });
+  var cardPanel = document.getElementById('pp-card');
+  if (cardPanel) cardPanel.classList.add('show');
+  document.querySelectorAll('.pay-opt').forEach(function(o){ o.classList.remove('on'); });
+  var firstOpt = document.querySelector('.pay-opt[data-pay="card"]') || document.querySelector('.pay-opt');
+  if (firstOpt) firstOpt.classList.add('on');
+
+  checkoutAuthMode = 'signup';
+  renderCheckoutAuth();
+
+  goToStep(1);
+
+  _cdLastFocus = document.activeElement;
+  document.body.style.overflow = 'hidden';
+  drawer.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(function() { drawer.classList.add('is-open'); });
+
+  _cdKeyHandler = function(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeCheckoutDrawer(); return; }
+    if (e.key === 'Tab') {
+      var panel = drawer.querySelector('.checkout-drawer__panel');
+      var focusables = cdFocusables(panel);
+      if (!focusables.length) return;
+      var first = focusables[0], last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+  document.addEventListener('keydown', _cdKeyHandler);
+
+  setTimeout(function() {
+    var closeBtn = drawer.querySelector('.cd-close-btn');
+    if (closeBtn) closeBtn.focus();
+  }, 240);
+}
+
+function closeCheckoutDrawer(silent) {
+  var drawer = document.getElementById('checkout-drawer');
+  if (!drawer) return;
+  drawer.classList.remove('is-open');
+  drawer.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  if (_cdKeyHandler) { document.removeEventListener('keydown', _cdKeyHandler); _cdKeyHandler = null; }
+  if (!silent && _cdLastFocus && _cdLastFocus.focus) {
+    try { _cdLastFocus.focus(); } catch (e) {}
+  }
+  _cdLastFocus = null;
+}
+
+function goToStep(n) {
+  cdCurrentStep = Math.max(1, Math.min(3, n));
+  var drawer = document.getElementById('checkout-drawer');
+  if (!drawer) return;
+  // Progress indicator
+  drawer.querySelectorAll('.cd-progress .cd-step').forEach(function(el) {
+    var s = parseInt(el.getAttribute('data-step'), 10);
+    el.classList.toggle('cd-step--active', s === cdCurrentStep);
+    el.classList.toggle('cd-step--done', s < cdCurrentStep);
+  });
+  var bar = drawer.querySelector('.cd-progress');
+  if (bar) bar.setAttribute('aria-valuenow', String(cdCurrentStep));
+  // Step panels
+  drawer.querySelectorAll('.cd-step-content').forEach(function(el) {
+    el.classList.remove('cd-step-content--active');
+  });
+  var active = document.getElementById('cd-step-' + cdCurrentStep);
+  if (active) active.classList.add('cd-step-content--active');
+  // Back btn visibility
+  var back = drawer.querySelector('.cd-back-btn');
+  if (back) back.style.visibility = cdCurrentStep > 1 ? 'visible' : 'hidden';
+  // Scroll body to top
+  var body = drawer.querySelector('.cd-body');
+  if (body) body.scrollTop = 0;
+
+  if (cdCurrentStep === 2) {
+    renderCheckoutAuth();
+    renderAttendeeFields();
+  }
+  updateDrawerCTA();
+}
+
+function updateDrawerCTA() {
+  var btn = document.getElementById('cd-cta');
+  if (!btn) return;
+  var ev = EVENTS[currentEvent] || EVENTS.rawdeo;
+  var tier = currentTier || (ev.tiers ? ev.tiers[0] : ev);
+  var priceCRC = tier.priceCRC !== undefined ? tier.priceCRC : ev.priceCRC;
+  if (discountApplied && discountPct > 0) priceCRC = priceCRC * (1 - discountPct / 100);
+  var total = Math.round(priceCRC * qty);
+  var totalStr = priceCRC === 0 ? 'Free' : formatCRC(total);
+  var summaryAmt = document.getElementById('cd-summary-total-amt');
+  if (summaryAmt) summaryAmt.innerHTML = priceCRC === 0 ? 'Free' : formatCRC(total);
+  if (cdCurrentStep === 1) {
+    btn.textContent = priceCRC === 0 ? 'CONTINUE →' : 'CHECKOUT · ' + totalStr;
+  } else if (cdCurrentStep === 2) {
+    btn.textContent = 'CONTINUE TO PAYMENT →';
+  } else {
+    btn.textContent = priceCRC === 0 ? 'CONFIRM · FREE' : 'COMPLETE PURCHASE · ' + totalStr;
+  }
+}
+
+function cdNext() {
+  if (cdCurrentStep === 1) {
+    if (!currentTier) { return; }
+    goToStep(2);
+    return;
+  }
+  if (cdCurrentStep === 2) {
+    attendeeValidationTriggered = true;
+    if (!validateAttendees()) {
+      var w = document.getElementById('attendee-warning');
+      if (w) w.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    // If not logged in, create a simulated session from the buyer form
+    if (!authIsLoggedIn()) {
+      var buyer = attendeeData[0] || { name: '', email: '' };
+      var bp = (buyer.name || '').split(' ');
+      var sessionUser = {
+        id: 'u_' + Date.now(),
+        email: buyer.email,
+        firstName: bp[0] || '',
+        lastName: bp.slice(1).join(' ') || '',
+        fullName: buyer.name,
+        emailVerified: false,
+        provider: 'email',
+        createdAt: new Date().toISOString()
+      };
+      try { localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser)); } catch (e) {}
+      renderAuthState();
+    }
+    goToStep(3);
+    return;
+  }
+  // Step 3 → pay
+  doPay();
+}
+
+function cdBack() {
+  if (cdCurrentStep > 1) goToStep(cdCurrentStep - 1);
+  else closeCheckoutDrawer();
+}
+
+// PDF placeholder: browser print of confirmation screen
+function downloadTicketPDF() {
+  try {
+    window.print();
+  } catch (e) {
+    alert('Ticket PDF will be emailed to you. Check your inbox.');
+  }
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   initFadeIns();
@@ -1784,6 +1947,12 @@ document.addEventListener('DOMContentLoaded', function() {
   initHomeParallax();
   initCarouselAutoScroll();
   updateCardCountdowns();
+  // Sync ticket badge from persisted userTickets
+  var badge = document.getElementById('menu-ticket-badge');
+  if (badge) {
+    badge.textContent = userTickets.length;
+    badge.style.display = userTickets.length ? 'inline-flex' : 'none';
+  }
   // Trigger fade for elements already in viewport
   setTimeout(function() {
     document.querySelectorAll(".fade-in").forEach(function(el) {
