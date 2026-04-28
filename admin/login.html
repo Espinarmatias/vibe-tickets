@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#141414">
+  <title>VIBE Admin · Login</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      background: #141414;
+      color: rgba(255,255,255,0.95);
+      font-family: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .vibe-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 3.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .vibe-logo .word-1 { color: rgba(255,255,255,0.95); }
+    .vibe-logo .word-2 { color: #6ab04c; font-style: italic; }
+
+    .vibe-subtitle {
+      font-size: 0.85rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 3.5rem;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: left;
+    }
+
+    .card h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.75rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.25rem;
+      line-height: 1.1;
+    }
+    .card h1 .accent { color: #6ab04c; font-style: italic; }
+
+    .card p.intro {
+      font-size: 0.9rem;
+      opacity: 0.6;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Barlow', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    input[type="email"]:focus {
+      border-color: #6ab04c;
+      background: rgba(255,255,255,0.08);
+    }
+    input[type="email"]::placeholder { color: rgba(255,255,255,0.3); }
+
+    button.btn-primary {
+      width: 100%;
+      background: #6ab04c;
+      color: #fff;
+      border: none;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 1.25rem;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button.btn-primary:hover { background: #7bbf5a; }
+    button.btn-primary:active { transform: scale(0.98); }
+    button.btn-primary:disabled {
+      background: rgba(106,176,76,0.3);
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 1.25rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      display: none;
+    }
+    .message.visible { display: block; }
+    .message.success {
+      background: rgba(106,176,76,0.12);
+      border: 1px solid rgba(106,176,76,0.4);
+      color: #a8d989;
+    }
+    .message.error {
+      background: rgba(214,48,49,0.12);
+      border: 1px solid rgba(214,48,49,0.4);
+      color: #ff8a8b;
+    }
+    .message.info {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+    }
+
+    .footer-note {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      opacity: 0.4;
+      text-align: center;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="vibe-logo">
+      <span class="word-1">VIBE</span><span class="word-2"> admin.</span>
+    </div>
+    <div class="vibe-subtitle">Panel de administración</div>
+
+    <div class="card">
+      <h1>Iniciar <span class="accent">sesión.</span></h1>
+      <p class="intro">Te mandamos un link mágico al email para entrar.</p>
+
+      <form id="login-form">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="vibeticketscr@gmail.com"
+          autocomplete="email"
+          required
+        >
+        <button type="submit" id="btn-submit" class="btn-primary">
+          Mandar link mágico
+        </button>
+      </form>
+
+      <div id="message" class="message"></div>
+    </div>
+
+    <div class="footer-note">
+      Solo admins autorizados pueden acceder.
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // ============ CONFIG ============
+    const SUPABASE_URL = 'https://smeuthybgzqxohjifgix.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_T5f432DOcZl3eXk4nQpBpg_NQz0TAl3';
+
+    // Where the magic link should redirect after click
+    const REDIRECT_TO = window.location.origin + '/admin/';
+
+    // ============ INIT ============
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const form = document.getElementById('login-form');
+    const emailInput = document.getElementById('email');
+    const btnSubmit = document.getElementById('btn-submit');
+    const messageEl = document.getElementById('message');
+
+    function showMessage(kind, text) {
+      messageEl.className = 'message ' + kind + ' visible';
+      messageEl.innerHTML = text;
+    }
+
+    function hideMessage() {
+      messageEl.className = 'message';
+    }
+
+    function setLoading(loading) {
+      btnSubmit.disabled = loading;
+      if (loading) {
+        btnSubmit.innerHTML = '<span class="spinner"></span>Mandando...';
+      } else {
+        btnSubmit.textContent = 'Mandar link mágico';
+      }
+    }
+
+    // ============ CHECK IF ALREADY LOGGED IN ============
+    async function checkExistingSession() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          // Already logged in — verify they are admin and redirect
+          showMessage('info', '<span class="spinner"></span>Ya estás logueado. Redirigiendo...');
+          setTimeout(() => {
+            window.location.href = REDIRECT_TO;
+          }, 800);
+        }
+      } catch (e) {
+        console.error('[session check]', e);
+      }
+    }
+
+    // ============ FORM SUBMIT ============
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMessage();
+
+      const email = emailInput.value.trim().toLowerCase();
+      if (!email) return;
+
+      setLoading(true);
+
+      try {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email,
+          options: {
+            emailRedirectTo: REDIRECT_TO,
+            shouldCreateUser: false  // No permitir auto-creación, solo emails ya existentes
+          }
+        });
+
+        if (error) {
+          console.error('[signInWithOtp]', error);
+          if (error.message && error.message.toLowerCase().includes('signups not allowed')) {
+            showMessage('error', '⛔ Ese email no está autorizado como admin. Contactá al equipo de Vibe Tickets.');
+          } else if (error.message && error.message.toLowerCase().includes('rate')) {
+            showMessage('error', '⏳ Demasiados intentos. Esperá 1 minuto y reintentá.');
+          } else {
+            showMessage('error', '⚠️ ' + error.message);
+          }
+        } else {
+          showMessage(
+            'success',
+            '✅ <strong>Listo.</strong> Te mandamos un link a <strong>' + email + '</strong>.<br>Revisá tu inbox y hacé click para entrar.'
+          );
+          form.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('[submit]', err);
+        showMessage('error', '⚠️ Algo falló. Reintentá en unos segundos.');
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Run session check on load
+    checkExistingSession();
+  })();
+  </script>
+
+</body>
+</html>
