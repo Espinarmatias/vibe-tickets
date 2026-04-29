@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#141414">
+  <title>VIBE Admin · Events</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      background: #141414;
+      color: rgba(255,255,255,0.95);
+      font-family: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Auth gate */
+    .auth-gate {
+      position: fixed; inset: 0;
+      background: #141414;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .auth-gate-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 3rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .auth-gate-logo .accent { color: #6ab04c; font-style: italic; }
+    .auth-gate-msg { font-size: 0.9rem; opacity: 0.6; margin-top: 1rem; }
+    .auth-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #6ab04c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-top: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Top bar (same as admin/index.html) */
+    .admin-bar {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-bar-left { display: flex; align-items: center; gap: 1.5rem; }
+    .admin-bar-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.01em;
+    }
+    .admin-bar-logo .accent { color: #6ab04c; font-style: italic; }
+    .admin-bar-nav { display: flex; gap: 0.5rem; }
+    .admin-bar-nav a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+    }
+    .admin-bar-nav a:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.95); }
+    .admin-bar-nav a.active {
+      background: rgba(106,176,76,0.15);
+      color: #6ab04c;
+    }
+    .admin-bar-right { display: flex; align-items: center; gap: 0.75rem; }
+    .admin-bar-user { font-size: 0.8rem; opacity: 0.6; }
+    .admin-bar-logout {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+    }
+    .admin-bar-logout:hover { background: rgba(214,48,49,0.15); border-color: rgba(214,48,49,0.4); color: #ff8a8b; }
+
+    /* Page content */
+    .page-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+    .page-header {
+      margin-bottom: 2.5rem;
+    }
+    .page-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 3rem;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .page-title .accent { color: #6ab04c; font-style: italic; }
+    .page-subtitle {
+      font-size: 0.85rem;
+      opacity: 0.5;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* Loading state */
+    .events-loading {
+      text-align: center;
+      padding: 4rem 1rem;
+      opacity: 0.5;
+    }
+
+    /* Events grid */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .event-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.1s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .event-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(106,176,76,0.4);
+    }
+    .event-card:active { transform: scale(0.99); }
+
+    .event-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .event-status {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 100px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .event-status.draft {
+      background: rgba(255,184,0,0.12);
+      color: #ffb800;
+      border: 1px solid rgba(255,184,0,0.3);
+    }
+    .event-status.published {
+      background: rgba(106,176,76,0.12);
+      color: #6ab04c;
+      border: 1px solid rgba(106,176,76,0.3);
+    }
+    .event-status.archived,
+    .event-status.completed {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .event-type-badge {
+      font-size: 0.65rem;
+      opacity: 0.5;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .event-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    .event-date {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-bottom: 0.2rem;
+    }
+
+    .event-venue {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      margin-bottom: 1rem;
+    }
+
+    .event-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .event-stat {
+      text-align: center;
+    }
+
+    .event-stat-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .event-stat-value.accent { color: #6ab04c; }
+
+    .event-stat-label {
+      font-size: 0.65rem;
+      opacity: 0.45;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+    .empty-state-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .empty-state-msg { font-size: 0.9rem; opacity: 0.5; max-width: 400px; margin: 0 auto; }
+
+    .error-box {
+      background: rgba(214,48,49,0.1);
+      border: 1px solid rgba(214,48,49,0.3);
+      color: #ff8a8b;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .admin-bar { padding: 0.5rem 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+      .admin-bar-left { gap: 0.75rem; }
+      .admin-bar-nav a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .admin-bar-user { display: none; }
+      .page-content { padding: 1.5rem 1rem; }
+      .page-title { font-size: 2.2rem; }
+      .events-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH GATE -->
+  <div class="auth-gate" id="auth-gate">
+    <div class="auth-gate-logo">VIBE <span class="accent">admin.</span></div>
+    <div class="auth-spinner"></div>
+    <div class="auth-gate-msg" id="auth-gate-msg">Verificando sesión...</div>
+  </div>
+
+  <!-- ADMIN TOP BAR -->
+  <div class="admin-bar" id="admin-bar" style="display:none">
+    <div class="admin-bar-left">
+      <div class="admin-bar-logo">VIBE <span class="accent">admin.</span></div>
+      <nav class="admin-bar-nav">
+        <a href="/admin/">Dashboard</a>
+        <a href="/admin/events/" class="active">Events</a>
+      </nav>
+    </div>
+    <div class="admin-bar-right">
+      <span class="admin-bar-user" id="admin-bar-user"></span>
+      <button class="admin-bar-logout" onclick="logoutAdmin()">Logout</button>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content" id="page-content" style="display:none">
+    <div class="page-header">
+      <div class="page-title">Events <span class="accent">manager.</span></div>
+      <div class="page-subtitle">Gestioná attendees, tickets y envíos por evento</div>
+    </div>
+
+    <div id="events-container">
+      <div class="events-loading">Cargando eventos...</div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    const SUPABASE_URL = 'https://smeuthybgzqxohjifgix.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_T5f432DOcZl3eXk4nQpBpg_NQz0TAl3';
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let currentAdmin = null;
+
+    // ============ AUTH ============
+    async function checkAuth() {
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) { window.location.href = '/admin/login.html'; return; }
+
+        const { data: admin, error } = await sb
+          .from('admins')
+          .select('id, first_name, last_name, role, is_active, organization_id')
+          .eq('auth_user_id', session.user.id)
+          .single();
+
+        if (error || !admin || !admin.is_active) {
+          await sb.auth.signOut();
+          window.location.href = '/admin/login.html?reason=not_admin';
+          return;
+        }
+
+        currentAdmin = admin;
+
+        const userEl = document.getElementById('admin-bar-user');
+        if (userEl) userEl.textContent = (admin.first_name || '') + ' ' + (admin.last_name || '');
+
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('admin-bar').style.display = 'flex';
+        document.getElementById('page-content').style.display = 'block';
+
+        loadEvents();
+      } catch (e) {
+        console.error('[auth]', e);
+        document.getElementById('auth-gate-msg').textContent = 'Error al verificar sesión.';
+      }
+    }
+
+    window.logoutAdmin = async function() {
+      try { await sb.auth.signOut(); } catch (e) {}
+      window.location.href = '/admin/login.html';
+    };
+
+    // ============ LOAD EVENTS ============
+    async function loadEvents() {
+      const container = document.getElementById('events-container');
+
+      try {
+        // Fetch events of this admin's org
+        const { data: events, error } = await sb
+          .from('events')
+          .select('id, name, slug, event_type, status, event_date, venue_name, max_capacity')
+          .eq('organization_id', currentAdmin.organization_id)
+          .order('event_date', { ascending: true });
+
+        if (error) {
+          console.error('[events]', error);
+          container.innerHTML = '<div class="error-box">Error al cargar eventos: ' + escapeHtml(error.message) + '</div>';
+          return;
+        }
+
+        if (!events || events.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <div class="empty-state-title">No hay eventos todavía</div>
+              <div class="empty-state-msg">Cuando crees tu primer evento, va a aparecer acá para gestionarlo.</div>
+            </div>
+          `;
+          return;
+        }
+
+        // Para cada evento, fetch counts (attendees + tickets + email_status)
+        const eventCards = await Promise.all(
+          events.map(async (ev) => {
+            const counts = await fetchCountsForEvent(ev.id);
+            return renderEventCard(ev, counts);
+          })
+        );
+
+        container.innerHTML = '<div class="events-grid">' + eventCards.join('') + '</div>';
+
+        // Wire up clicks
+        document.querySelectorAll('.event-card').forEach(card => {
+          card.addEventListener('click', (e) => {
+            const eventId = card.getAttribute('data-event-id');
+            if (eventId) {
+              window.location.href = '/admin/events/manage.html?event=' + eventId;
+            }
+          });
+        });
+      } catch (e) {
+        console.error('[loadEvents]', e);
+        container.innerHTML = '<div class="error-box">Error inesperado al cargar eventos.</div>';
+      }
+    }
+
+    async function fetchCountsForEvent(eventId) {
+      try {
+        // Total attendees
+        const { count: attendeesCount } = await sb
+          .from('attendees')
+          .select('id', { count: 'exact', head: true })
+          .eq('event_id', eventId);
+
+        // Total tickets
+        const { count: ticketsCount } = await sb
+          .from('tickets')
+          .select('id', { count: 'exact', head: true })
+          .eq('event_id', eventId);
+
+        // Emails sent (attendees with email_status = 'sent')
+        const { count: emailsSent } = await sb
+          .from('attendees')
+          .select('id', { count: 'exact', head: true })
+          .eq('event_id', eventId)
+          .eq('email_status', 'sent');
+
+        return {
+          attendees: attendeesCount || 0,
+          tickets: ticketsCount || 0,
+          emails: emailsSent || 0,
+        };
+      } catch (e) {
+        console.error('[counts]', e);
+        return { attendees: 0, tickets: 0, emails: 0 };
+      }
+    }
+
+    function renderEventCard(ev, counts) {
+      const status = (ev.status || 'draft').toLowerCase();
+      const eventType = (ev.event_type || '').toUpperCase();
+      const dateFormatted = formatEventDate(ev.event_date);
+
+      return `
+        <div class="event-card" data-event-id="${escapeHtml(ev.id)}">
+          <div class="event-status-row">
+            <span class="event-status ${status}">${status}</span>
+            ${eventType ? `<span class="event-type-badge">${escapeHtml(eventType)}</span>` : ''}
+          </div>
+          <div class="event-name">${escapeHtml(ev.name || 'Sin nombre')}</div>
+          <div class="event-date">${escapeHtml(dateFormatted)}</div>
+          <div class="event-venue">${escapeHtml(ev.venue_name || '—')}</div>
+          <div class="event-stats">
+            <div class="event-stat">
+              <div class="event-stat-value">${counts.attendees}</div>
+              <div class="event-stat-label">Attendees</div>
+            </div>
+            <div class="event-stat">
+              <div class="event-stat-value accent">${counts.tickets}</div>
+              <div class="event-stat-label">Tickets</div>
+            </div>
+            <div class="event-stat">
+              <div class="event-stat-value">${counts.emails}</div>
+              <div class="event-stat-label">Emails</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function formatEventDate(iso) {
+      if (!iso) return '—';
+      try {
+        const d = new Date(iso);
+        return d.toLocaleDateString('es-CR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'America/Costa_Rica'
+        });
+      } catch { return iso; }
+    }
+
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return '';
+      const div = document.createElement('div');
+      div.textContent = String(s);
+      return div.innerHTML;
+    }
+
+    // Run
+    checkAuth();
+  })();
+  </script>
+
+</body>
+</html>
