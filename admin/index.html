@@ -7,8 +7,112 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;1,100;1,300&family=Unbounded:wght@900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../css/styles.css"/>
+
+<!-- Supabase JS for auth -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 .dash-page{padding-top:0!important;}
+
+/* === Auth gate === */
+.auth-gate {
+  position: fixed; inset: 0;
+  background: #141414;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 9999;
+  font-family: 'Barlow', -apple-system, sans-serif;
+}
+.auth-gate-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 3rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  color: rgba(255,255,255,0.95);
+}
+.auth-gate-logo .accent { color: #6ab04c; font-style: italic; }
+.auth-gate-msg {
+  font-size: 0.9rem;
+  opacity: 0.6;
+  margin-top: 1rem;
+}
+.auth-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: #6ab04c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-top: 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* === Admin top bar === */
+.admin-bar {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Barlow', sans-serif;
+}
+.admin-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.admin-bar-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.95);
+}
+.admin-bar-logo .accent { color: #6ab04c; font-style: italic; }
+.admin-bar-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+.admin-bar-nav a {
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: background 0.15s, color 0.15s;
+}
+.admin-bar-nav a:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.95); }
+.admin-bar-nav a.active {
+  background: rgba(106,176,76,0.15);
+  color: #6ab04c;
+}
+.admin-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.admin-bar-user {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+.admin-bar-logout {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.95);
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'Barlow', sans-serif;
+}
+.admin-bar-logout:hover { background: rgba(214,48,49,0.15); border-color: rgba(214,48,49,0.4); color: #ff8a8b; }
+
 @media(max-width:430px){
   .kpi-grid{grid-template-columns:1fr 1fr!important;gap:8px;}
   .dash-main-grid,.dash-bottom-grid{grid-template-columns:1fr!important;}
@@ -27,10 +131,36 @@
   .dash-table tbody tr{display:block;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;padding:10px 12px;}
   .dash-table td{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;}
   .dash-table td:last-child{border-bottom:none;}
+  .admin-bar { padding: 0.5rem 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+  .admin-bar-left { gap: 0.75rem; }
+  .admin-bar-nav a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+  .admin-bar-user { display: none; }
 }
 </style>
 </head>
 <body>
+
+<!-- ════ AUTH GATE (shows while checking session) ════ -->
+<div class="auth-gate" id="auth-gate">
+  <div class="auth-gate-logo">VIBE <span class="accent">admin.</span></div>
+  <div class="auth-spinner"></div>
+  <div class="auth-gate-msg" id="auth-gate-msg">Verificando sesión...</div>
+</div>
+
+<!-- ════ ADMIN TOP BAR ════ -->
+<div class="admin-bar" id="admin-bar" style="display:none">
+  <div class="admin-bar-left">
+    <div class="admin-bar-logo">VIBE <span class="accent">admin.</span></div>
+    <nav class="admin-bar-nav">
+      <a href="/admin/" class="active">Dashboard</a>
+      <a href="/admin/events/">Events</a>
+    </nav>
+  </div>
+  <div class="admin-bar-right">
+    <span class="admin-bar-user" id="admin-bar-user"></span>
+    <button class="admin-bar-logout" onclick="logoutAdmin()">Logout</button>
+  </div>
+</div>
 
 <!-- ════ CEO SALES DASHBOARD ════ -->
 <div class="dash-page" id="dash-main" style="display:none">
@@ -186,20 +316,98 @@
   </div>
 </div>
 
-<!-- CEO LOGIN MODAL -->
-<div class="dash-login-overlay show" id="dash-login-overlay">
-  <div class="dash-login-card">
-    <div class="dash-login-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-    <div class="dash-login-title">VIBE. TEAM</div>
-    <div class="dash-login-sub">Enter your access code to view the sales dashboard</div>
-    <input class="dash-login-input" type="password" id="dash-pin-input" placeholder="Enter access code" onkeydown="if(event.key==='Enter')checkDashPin()"/>
-    <button class="dash-login-btn" onclick="checkDashPin()">ACCESS DASHBOARD</button>
-    <div class="dash-login-error" id="dash-login-error">Incorrect access code. Try again.</div>
-    <button class="dash-login-cancel" onclick="closeDashLogin()">Cancel</button>
-  </div>
-</div>
-
 <script>
+// ============================================================
+// SUPABASE AUTH GATE
+// ============================================================
+const SUPABASE_URL = 'https://smeuthybgzqxohjifgix.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_T5f432DOcZl3eXk4nQpBpg_NQz0TAl3';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentAdmin = null;
+
+function setGateMessage(msg) {
+  const el = document.getElementById('auth-gate-msg');
+  if (el) el.textContent = msg;
+}
+
+async function checkAuth() {
+  try {
+    const { data: { session }, error } = await sb.auth.getSession();
+    if (error) {
+      console.error('[auth] session error:', error);
+      window.location.href = '/admin/login.html';
+      return;
+    }
+
+    if (!session) {
+      // Not logged in
+      window.location.href = '/admin/login.html';
+      return;
+    }
+
+    setGateMessage('Verificando permisos de admin...');
+
+    // Check that this user has an admin record
+    const { data: admin, error: adminError } = await sb
+      .from('admins')
+      .select('id, first_name, last_name, role, is_active, organization_id')
+      .eq('auth_user_id', session.user.id)
+      .single();
+
+    if (adminError || !admin) {
+      console.error('[auth] not an admin:', adminError);
+      setGateMessage('Tu cuenta no tiene permisos de admin. Cerrando sesión...');
+      await sb.auth.signOut();
+      setTimeout(() => { window.location.href = '/admin/login.html?reason=not_admin'; }, 1500);
+      return;
+    }
+
+    if (!admin.is_active) {
+      setGateMessage('Tu cuenta de admin está desactivada.');
+      await sb.auth.signOut();
+      setTimeout(() => { window.location.href = '/admin/login.html?reason=disabled'; }, 1500);
+      return;
+    }
+
+    // Logged in + admin OK
+    currentAdmin = admin;
+
+    // Display name in top bar
+    const userEl = document.getElementById('admin-bar-user');
+    if (userEl) {
+      userEl.textContent = (admin.first_name || '') + ' ' + (admin.last_name || '');
+    }
+
+    // Hide gate, show dashboard
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('admin-bar').style.display = 'flex';
+    document.getElementById('dash-main').style.display = 'block';
+
+    // Init dashboard with seed data
+    refreshDashboard();
+  } catch (e) {
+    console.error('[auth] exception:', e);
+    setGateMessage('Error al verificar sesión. Refrescá la página.');
+  }
+}
+
+async function logoutAdmin() {
+  try {
+    await sb.auth.signOut();
+  } catch (e) {
+    console.error('[logout]', e);
+  }
+  window.location.href = '/admin/login.html';
+}
+
+// Run auth check on load
+checkAuth();
+
+// ============================================================
+// DASHBOARD CEO (datos hardcoded — sin cambios, mismo flow)
+// ============================================================
+
 // ─── CONFIG DATA ───
 var RAWDEO_B64 = "public/images/rawdeo.jpg";
 var QR_B64 = "public/images/qr.svg";
@@ -266,8 +474,6 @@ var tickets = [];
 var currentEvent = "rawdeo";
 var payM = "card";
 
-// ─── DASHBOARD FUNCTIONS ───
-// Seed data — mix of real purchases + simulated historical data
 var SEED_BUYERS = ["Carlos M.","Ana G.","Diego R.","Sofia L.","Pablo V.","Maria J.","Luis C.","Valeria P.","Andres T.","Camila F.","Roberto S.","Isabella N.","Fernando K.","Daniela W.","Miguel A.","Laura E.","Juan B.","Gabriela O.","Ricardo H.","Natalia Q.","Eduardo Z.","Monica Y.","Alejandro X.","Patricia U."];
 var SEED_EVENTS = ["rawdeo","rawdeo","rawdeo","mansita","rawdeo","rawdeo","noche","golden","underground","salsa","fitness","nye","rawdeo","mansita","noche"];
 var METHODS = ["card","card","sinpe","sinpe","apple"];
@@ -276,7 +482,6 @@ function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function randEl(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function fmtDate(d){var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return months[d.getMonth()]+" "+d.getDate()+", "+d.getFullYear()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
 
-// Generate seed transactions
 var allTransactions = [];
 var now = new Date();
 for(var i=0;i<87;i++){
@@ -509,7 +714,6 @@ function refreshDashboard(){
 }
 
 // ─── TIER TABLE ───
-// ─── TIER TABLE FOR DASHBOARD ───
 var currentTierEvent = "rawdeo";
 function showTierTable(evKey, btn) {
   currentTierEvent = evKey;
@@ -566,45 +770,6 @@ function renderTierTable() {
       +"</tr>";
   }
 }
-// Initialize tier table when dashboard opens
-document.addEventListener("DOMContentLoaded", function(){
-  setTimeout(function(){ if(document.getElementById("tier-table-body")) renderTierTable(); }, 100);
-});
-
-// ─── AUTH ───
-// ─── CEO DASHBOARD AUTH ───
-var DASH_PIN = "VIBE2026";
-var DASH_UNLOCKED = false;
-
-function openDashLogin(){
-  document.getElementById('dash-login-overlay').classList.add('show');
-  setTimeout(function(){ document.getElementById('dash-pin-input').focus(); }, 200);
-}
-function closeDashLogin(){
-  window.location.href = '../vibe-v5.html';
-}
-function checkDashPin(){
-  var val = document.getElementById('dash-pin-input').value.trim();
-  if(val === DASH_PIN){
-    DASH_UNLOCKED = true;
-    document.getElementById('dash-login-overlay').classList.remove('show');
-    document.getElementById('dash-main').style.display = 'block';
-    refreshDashboard();
-  } else {
-    document.getElementById('dash-login-error').classList.add('show');
-    document.getElementById('dash-pin-input').value = '';
-    document.getElementById('dash-pin-input').focus();
-    var card = document.querySelector('.dash-login-card');
-    card.style.animation = 'none';
-    card.offsetHeight;
-    card.style.animation = 'shake .3s ease';
-  }
-}
-
-// ─── INIT ───
-document.addEventListener('DOMContentLoaded', function(){
-  setTimeout(function(){ document.getElementById('dash-pin-input').focus(); }, 100);
-});
 </script>
 </body>
 </html>
