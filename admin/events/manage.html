@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#141414">
+  <title>VIBE Admin · Manage Event</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      background: #141414;
+      color: rgba(255,255,255,0.95);
+      font-family: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* === Auth gate === */
+    .auth-gate {
+      position: fixed; inset: 0;
+      background: #141414;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .auth-gate-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 3rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .auth-gate-logo .accent { color: #6ab04c; font-style: italic; }
+    .auth-gate-msg { font-size: 0.9rem; opacity: 0.6; margin-top: 1rem; }
+    .auth-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #6ab04c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-top: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* === Top bar === */
+    .admin-bar {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-bar-left { display: flex; align-items: center; gap: 1.5rem; }
+    .admin-bar-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.01em;
+    }
+    .admin-bar-logo .accent { color: #6ab04c; font-style: italic; }
+    .admin-bar-nav { display: flex; gap: 0.5rem; }
+    .admin-bar-nav a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .admin-bar-nav a:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.95); }
+    .admin-bar-nav a.active {
+      background: rgba(106,176,76,0.15);
+      color: #6ab04c;
+    }
+    .admin-bar-right { display: flex; align-items: center; gap: 0.75rem; }
+    .admin-bar-user { font-size: 0.8rem; opacity: 0.6; }
+    .admin-bar-logout {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+    }
+    .admin-bar-logout:hover { background: rgba(214,48,49,0.15); border-color: rgba(214,48,49,0.4); color: #ff8a8b; }
+
+    /* === Page === */
+    .page-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .page-back {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      text-decoration: none;
+      color: rgba(255,255,255,0.95);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+    .page-back:hover { opacity: 0.9; }
+    .page-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      text-transform: uppercase;
+      margin-top: 0.25rem;
+    }
+    .page-meta {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-top: 0.5rem;
+    }
+
+    /* === Stats grid === */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 0.4rem;
+    }
+    .stat-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .stat-value.accent { color: #6ab04c; }
+    .stat-detail {
+      font-size: 0.7rem;
+      opacity: 0.4;
+      margin-top: 0.4rem;
+    }
+
+    /* === Action buttons === */
+    .actions-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .actions-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      margin-bottom: 1rem;
+    }
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+    }
+    .action-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Barlow', sans-serif;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .action-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(106,176,76,0.4); }
+    .action-btn:active { transform: scale(0.98); }
+    .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .action-btn:disabled:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); }
+    .action-btn.primary {
+      background: rgba(106,176,76,0.12);
+      border-color: rgba(106,176,76,0.4);
+    }
+    .action-btn.primary:hover { background: rgba(106,176,76,0.2); }
+    .action-btn-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.4rem;
+    }
+    .action-btn-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.2rem;
+    }
+    .action-btn-desc {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      line-height: 1.3;
+    }
+
+    /* === Progress card === */
+    .progress-card {
+      background: rgba(106,176,76,0.06);
+      border: 1px solid rgba(106,176,76,0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: none;
+    }
+    .progress-card.visible { display: block; }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .progress-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
+    .progress-status {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 100px;
+      background: rgba(106,176,76,0.15);
+      color: #6ab04c;
+      border: 1px solid rgba(106,176,76,0.4);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .progress-status.completed {
+      background: rgba(106,176,76,0.2);
+    }
+    .progress-bar-wrap {
+      height: 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6ab04c, #8bc34a);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .progress-numbers {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.85rem;
+    }
+    .progress-numbers strong {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .progress-numbers .succeeded { color: #6ab04c; }
+    .progress-numbers .failed { color: #ff8a8b; }
+
+    /* === Attendees table === */
+    .table-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .table-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
+    .table-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .table-search {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.55rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: 'Barlow', sans-serif;
+      width: 220px;
+      outline: none;
+    }
+    .table-search:focus { border-color: #6ab04c; }
+    .table-filter {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.55rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: 'Barlow', sans-serif;
+      cursor: pointer;
+      outline: none;
+    }
+    .table-wrap { overflow-x: auto; }
+    .table-data {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .table-data thead th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+    }
+    .table-data tbody td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .table-data tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 100px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+    .badge.sent { background: rgba(106,176,76,0.12); color: #6ab04c; border: 1px solid rgba(106,176,76,0.3); }
+    .badge.pending { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
+    .badge.failed { background: rgba(214,48,49,0.12); color: #ff8a8b; border: 1px solid rgba(214,48,49,0.3); }
+    .badge.sending { background: rgba(255,184,0,0.12); color: #ffb800; border: 1px solid rgba(255,184,0,0.3); }
+    .badge.has-ticket { background: rgba(106,176,76,0.12); color: #6ab04c; border: 1px solid rgba(106,176,76,0.3); }
+    .badge.no-ticket { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+    .table-empty {
+      padding: 3rem 1rem;
+      text-align: center;
+      opacity: 0.5;
+    }
+    .table-pagination {
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.8rem;
+    }
+    .table-pag-info { opacity: 0.5; }
+    .table-pag-btns { display: flex; gap: 0.25rem; }
+    .table-pag-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+    }
+    .table-pag-btn.active { background: #6ab04c; border-color: #6ab04c; }
+    .table-pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* === Modal === */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5000;
+      padding: 1rem;
+    }
+    .modal-overlay.visible { display: flex; }
+    .modal {
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+    }
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.5rem;
+    }
+    .modal-title .accent { color: #6ab04c; font-style: italic; }
+    .modal-subtitle {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-bottom: 1.5rem;
+    }
+    .modal-input {
+      display: block;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.95);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+    .btn-primary-modal {
+      background: #6ab04c;
+      border: none;
+      color: #fff;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-primary-modal:hover { background: #7bbf5a; }
+    .btn-primary-modal:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-danger {
+      background: rgba(214,48,49,0.15);
+      border: 1px solid rgba(214,48,49,0.4);
+      color: #ff8a8b;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .btn-danger:hover { background: rgba(214,48,49,0.25); }
+
+    .preview-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    .preview-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .preview-row:last-child { border-bottom: none; }
+    .preview-row strong { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; }
+    .preview-row .ok { color: #6ab04c; }
+    .preview-row .warn { color: #ffb800; }
+    .preview-row .err { color: #ff8a8b; }
+
+    .preview-table {
+      width: 100%;
+      font-size: 0.75rem;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .preview-table th {
+      text-align: left;
+      padding: 0.4rem 0.5rem;
+      opacity: 0.5;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .preview-table td {
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      z-index: 6000;
+      max-width: 360px;
+      transform: translateY(150%);
+      transition: transform 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      font-size: 0.9rem;
+    }
+    .toast.visible { transform: translateY(0); }
+    .toast.success { background: #6ab04c; color: #fff; }
+    .toast.error { background: #d63031; color: #fff; }
+    .toast.info { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.95); }
+
+    @media (max-width: 600px) {
+      .admin-bar { padding: 0.5rem 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+      .admin-bar-left { gap: 0.75rem; }
+      .admin-bar-nav a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .admin-bar-user { display: none; }
+      .page-content { padding: 1rem; }
+      .page-title { font-size: 1.8rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .actions-grid { grid-template-columns: 1fr; }
+      .table-search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH GATE -->
+  <div class="auth-gate" id="auth-gate">
+    <div class="auth-gate-logo">VIBE <span class="accent">admin.</span></div>
+    <div class="auth-spinner"></div>
+    <div class="auth-gate-msg" id="auth-gate-msg">Verificando sesión...</div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="admin-bar" id="admin-bar" style="display:none">
+    <div class="admin-bar-left">
+      <div class="admin-bar-logo">VIBE <span class="accent">admin.</span></div>
+      <nav class="admin-bar-nav">
+        <a href="/admin/">Dashboard</a>
+        <a href="/admin/events/" class="active">Events</a>
+      </nav>
+    </div>
+    <div class="admin-bar-right">
+      <span class="admin-bar-user" id="admin-bar-user"></span>
+      <button class="admin-bar-logout" onclick="logoutAdmin()">Logout</button>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content" id="page-content" style="display:none">
+
+    <div class="page-header">
+      <div>
+        <a href="/admin/events/" class="page-back">← Events</a>
+        <div class="page-title" id="event-name">Cargando...</div>
+        <div class="page-meta" id="event-meta">—</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Attendees</div>
+        <div class="stat-value" id="stat-attendees">—</div>
+        <div class="stat-detail" id="stat-attendees-detail">total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tickets</div>
+        <div class="stat-value accent" id="stat-tickets">—</div>
+        <div class="stat-detail" id="stat-tickets-detail">generados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Emails Sent</div>
+        <div class="stat-value" id="stat-emails-sent">—</div>
+        <div class="stat-detail" id="stat-emails-detail">enviados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Scanned</div>
+        <div class="stat-value" id="stat-scanned">—</div>
+        <div class="stat-detail" id="stat-scanned-detail">ingresaron</div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions-card">
+      <div class="actions-title">Acciones</div>
+      <div class="actions-grid">
+        <button class="action-btn" id="btn-import" onclick="openImportModal()">
+          <div class="action-btn-icon">📤</div>
+          <div class="action-btn-title">Importar lista</div>
+          <div class="action-btn-desc">Subí Excel/CSV con los attendees</div>
+        </button>
+        <button class="action-btn" id="btn-generate" onclick="openGenerateModal()">
+          <div class="action-btn-icon">🎟️</div>
+          <div class="action-btn-title">Generar tickets</div>
+          <div class="action-btn-desc">Crea QR único para cada attendee</div>
+        </button>
+        <button class="action-btn primary" id="btn-send" onclick="openSendModal()">
+          <div class="action-btn-icon">📧</div>
+          <div class="action-btn-title">Enviar emails</div>
+          <div class="action-btn-desc">Manda el ticket a todos los pendientes</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- PROGRESS (live during email send) -->
+    <div class="progress-card" id="progress-card">
+      <div class="progress-header">
+        <div class="progress-title" id="progress-title">Enviando emails...</div>
+        <span class="progress-status" id="progress-status">RUNNING</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+      </div>
+      <div class="progress-numbers">
+        <span><strong id="progress-processed">0</strong> / <strong id="progress-total">0</strong> procesados</span>
+        <span><strong class="succeeded" id="progress-succeeded">0</strong> enviados</span>
+        <span><strong class="failed" id="progress-failed">0</strong> fallidos</span>
+        <span id="progress-eta"></span>
+      </div>
+    </div>
+
+    <!-- ATTENDEES TABLE -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Attendees</div>
+        <div class="table-controls">
+          <input type="text" class="table-search" id="table-search" placeholder="Buscar por nombre, email...">
+          <select class="table-filter" id="table-filter">
+            <option value="all">Todos</option>
+            <option value="no_email">Sin email</option>
+            <option value="sent">Email enviado</option>
+            <option value="failed">Email fallido</option>
+            <option value="no_ticket">Sin ticket</option>
+            <option value="with_ticket">Con ticket</option>
+          </select>
+          <button class="btn-secondary" onclick="loadAttendees()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table-data">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Depto</th>
+              <th>Ticket</th>
+              <th>Email status</th>
+            </tr>
+          </thead>
+          <tbody id="attendees-tbody">
+            <tr><td colspan="5" class="table-empty">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-pagination">
+        <div class="table-pag-info" id="table-pag-info">—</div>
+        <div class="table-pag-btns" id="table-pag-btns"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ MODALS ============ -->
+
+  <!-- IMPORT MODAL -->
+  <div class="modal-overlay" id="modal-import">
+    <div class="modal">
+      <div class="modal-title">Importar <span class="accent">attendees.</span></div>
+      <div class="modal-subtitle">Subí un Excel (.xlsx) o CSV con los datos de los invitados.</div>
+
+      <div id="import-step-upload">
+        <input type="file" id="import-file" accept=".xlsx,.xls,.csv" class="modal-input">
+        <div style="font-size:0.8rem;opacity:0.55;line-height:1.5;margin-bottom:1rem;">
+          <strong style="color:rgba(255,255,255,0.95);">Columnas esperadas:</strong> nombre, apellido (o apellidos), email, departamento, employee_id, teléfono.<br>
+          El sistema detecta variaciones automáticamente (mayúsculas, sinónimos en inglés/español).
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeModal('modal-import')">Cancelar</button>
+          <button class="btn-primary-modal" id="btn-parse-file" onclick="parseImportFile()">Cargar archivo</button>
+        </div>
+      </div>
+
+      <div id="import-step-preview" style="display:none">
+        <div class="preview-box" id="import-preview-summary"></div>
+        <div style="font-size:0.85rem;opacity:0.7;margin-bottom:0.5rem;">Preview (primeras 5 filas):</div>
+        <div style="overflow-x:auto;background:rgba(0,0,0,0.2);border-radius:6px;padding:0.5rem;">
+          <table class="preview-table" id="import-preview-table"></table>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="resetImportModal()">← Atrás</button>
+          <button class="btn-primary-modal" id="btn-confirm-import" onclick="confirmImport()">Confirmar e importar</button>
+        </div>
+      </div>
+
+      <div id="import-step-result" style="display:none">
+        <div class="preview-box" id="import-result-summary"></div>
+        <div class="modal-actions">
+          <button class="btn-primary-modal" onclick="closeModal('modal-import'); refreshAll()">Listo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATE TICKETS MODAL -->
+  <div class="modal-overlay" id="modal-generate">
+    <div class="modal">
+      <div class="modal-title">Generar <span class="accent">tickets.</span></div>
+      <div class="modal-subtitle">Genera 1 ticket único con QR para cada attendee que aún no tiene uno.</div>
+      <div class="preview-box" id="generate-preview-box">Cargando...</div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('modal-generate')">Cancelar</button>
+        <button class="btn-primary-modal" id="btn-confirm-generate" onclick="confirmGenerate()">Generar tickets</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEND EMAILS MODAL -->
+  <div class="modal-overlay" id="modal-send">
+    <div class="modal">
+      <div class="modal-title">Enviar <span class="accent">emails.</span></div>
+      <div class="modal-subtitle">Envío masivo del ticket por email con QR a todos los pendientes.</div>
+      <div class="preview-box" id="send-preview-box">Cargando...</div>
+      <div style="background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.3);color:#ffb800;padding:0.75rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;line-height:1.4;">
+        ⚠️ Esta acción <strong>no se puede deshacer</strong>. Una vez enviado, los attendees recibirán su ticket en el email.
+      </div>
+      <div style="font-size:0.8rem;opacity:0.6;margin-bottom:1rem;">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+          <input type="checkbox" id="send-test-only" checked>
+          <span>Modo test (solo emails con <code>+pfizer</code> en la dirección — para no spammear)</span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('modal-send')">Cancelar</button>
+        <button class="btn-danger" id="btn-confirm-send" onclick="confirmSend()">Confirmar envío</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="manage.js"></script>
+</body>
+</html>
