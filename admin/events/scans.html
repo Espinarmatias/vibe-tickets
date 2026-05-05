@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#141414">
+  <title>VIBE Admin · Live Scans</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      background: #141414;
+      color: rgba(255,255,255,0.95);
+      font-family: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* === Auth gate === */
+    .auth-gate {
+      position: fixed; inset: 0;
+      background: #141414;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .auth-gate-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 3rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .auth-gate-logo .accent { color: #6ab04c; font-style: italic; }
+    .auth-gate-msg { font-size: 0.9rem; opacity: 0.6; margin-top: 1rem; }
+    .auth-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #6ab04c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-top: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* === Top bar === */
+    .admin-bar {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0.6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-bar-left { display: flex; align-items: center; gap: 1.5rem; }
+    .admin-bar-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.01em;
+    }
+    .admin-bar-logo .accent { color: #6ab04c; font-style: italic; }
+    .admin-bar-nav { display: flex; gap: 0.5rem; }
+    .admin-bar-nav a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .admin-bar-nav a:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.95); }
+    .admin-bar-nav a.active {
+      background: rgba(106,176,76,0.15);
+      color: #6ab04c;
+    }
+    .admin-bar-right { display: flex; align-items: center; gap: 0.75rem; }
+    .admin-bar-user { font-size: 0.8rem; opacity: 0.6; }
+    .admin-bar-logout {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.95);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+    }
+    .admin-bar-logout:hover { background: rgba(214,48,49,0.15); border-color: rgba(214,48,49,0.4); color: #ff8a8b; }
+
+    /* === Page === */
+    .page-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .page-back {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      text-decoration: none;
+      color: rgba(255,255,255,0.95);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+    .page-back:hover { opacity: 0.9; }
+    .page-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      text-transform: uppercase;
+      margin-top: 0.25rem;
+    }
+    .page-meta {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-top: 0.5rem;
+    }
+
+    /* === Stats grid === */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 0.4rem;
+    }
+    .stat-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .stat-value.accent { color: #6ab04c; }
+    .stat-detail {
+      font-size: 0.7rem;
+      opacity: 0.4;
+      margin-top: 0.4rem;
+    }
+
+    /* === Live feed === */
+    .feed-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem 0.5rem;
+    }
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .feed-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 100px;
+      background: rgba(106,176,76,0.15);
+      color: #6ab04c;
+      border: 1px solid rgba(106,176,76,0.4);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #6ab04c;
+      animation: livepulse 1.4s ease-in-out infinite;
+    }
+    @keyframes livepulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+    .feed-updated {
+      font-size: 0.75rem;
+      opacity: 0.45;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* === Scan list === */
+    .scan-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .scan-row {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr auto auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: background 0.4s;
+    }
+    .scan-row:last-child { border-bottom: none; }
+    .scan-row.fresh {
+      background: rgba(106,176,76,0.10);
+      animation: freshfade 1.6s ease-out;
+    }
+    @keyframes freshfade {
+      0% { background: rgba(106,176,76,0.22); }
+      100% { background: rgba(106,176,76,0.00); }
+    }
+    .scan-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: -0.005em;
+    }
+    .scan-email {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      opacity: 0.55;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .scan-time-abs {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      opacity: 0.7;
+      text-align: right;
+    }
+    .scan-time-rel {
+      font-size: 0.7rem;
+      opacity: 0.4;
+      text-align: right;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      min-width: 70px;
+    }
+
+    .scan-empty {
+      padding: 3rem 1rem;
+      text-align: center;
+      opacity: 0.4;
+      font-size: 0.9rem;
+    }
+    .scan-empty-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.5;
+    }
+
+    .feed-footer {
+      padding: 0.75rem 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      opacity: 0.4;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 0.25rem;
+    }
+
+    /* === Responsive === */
+    @media (max-width: 720px) {
+      .admin-bar { padding: 0.5rem 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+      .admin-bar-left { gap: 0.75rem; }
+      .admin-bar-nav a { padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+      .page-content { padding: 1.25rem 0.75rem; }
+      .page-title { font-size: 1.8rem; }
+      .scan-row {
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem 0.75rem;
+        row-gap: 0.2rem;
+      }
+      .scan-email { grid-column: 1 / 2; }
+      .scan-time-abs { grid-column: 2 / 3; grid-row: 1 / 2; }
+      .scan-time-rel { grid-column: 2 / 3; grid-row: 2 / 3; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH GATE -->
+  <div class="auth-gate" id="auth-gate">
+    <div class="auth-gate-logo">VIBE <span class="accent">admin.</span></div>
+    <div class="auth-spinner"></div>
+    <div class="auth-gate-msg" id="auth-gate-msg">Verificando sesión...</div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="admin-bar" id="admin-bar" style="display:none">
+    <div class="admin-bar-left">
+      <div class="admin-bar-logo">VIBE <span class="accent">admin.</span></div>
+      <nav class="admin-bar-nav">
+        <a href="/admin/">Dashboard</a>
+        <a href="/admin/events/" class="active">Events</a>
+      </nav>
+    </div>
+    <div class="admin-bar-right">
+      <span class="admin-bar-user" id="admin-bar-user"></span>
+      <button class="admin-bar-logout" onclick="logoutAdmin()">Logout</button>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content" id="page-content" style="display:none">
+
+    <div class="page-header">
+      <div>
+        <a href="#" id="back-link" class="page-back">← Volver al evento</a>
+        <div class="page-title" id="event-name">Cargando...</div>
+        <div class="page-meta" id="event-meta">—</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-detail">attendees</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Scanned</div>
+        <div class="stat-value accent" id="stat-scanned">—</div>
+        <div class="stat-detail" id="stat-scanned-pct">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="stat-pending">—</div>
+        <div class="stat-detail">por ingresar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Last 60s</div>
+        <div class="stat-value" id="stat-last60">—</div>
+        <div class="stat-detail">scans recientes</div>
+      </div>
+    </div>
+
+    <!-- LIVE FEED -->
+    <div class="feed-card">
+      <div class="feed-header">
+        <div class="feed-title">Scans en vivo</div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span class="feed-updated" id="feed-updated">—</span>
+          <span class="live-pill"><span class="live-dot"></span> Live</span>
+        </div>
+      </div>
+
+      <div class="scan-list" id="scan-list">
+        <div class="scan-empty" id="scan-empty">
+          <div class="scan-empty-icon">📷</div>
+          <div>Esperando primer scan…</div>
+        </div>
+      </div>
+
+      <div class="feed-footer" id="feed-footer">
+        Actualización cada 3s · mostrando últimos 50 scans exitosos
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // ============ CONFIG ============
+    const SUPABASE_URL = 'https://smeuthybgzqxohjifgix.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_T5f432DOcZl3eXk4nQpBpg_NQz0TAl3';
+    const POLL_INTERVAL_MS = 3000;
+    const FEED_LIMIT = 50;
+
+    // ============ STATE ============
+    const state = {
+      sb: null,
+      admin: null,
+      eventId: null,
+      event: null,
+      attendeesTotal: 0,
+      knownScanIds: new Set(),  // para detectar scans nuevos y aplicar highlight
+      pollTimer: null,
+      relTimer: null,
+    };
+
+    // ============ INIT ============
+    function init() {
+      const params = new URLSearchParams(location.search);
+      state.eventId = params.get('event');
+
+      if (!state.eventId) {
+        document.getElementById('auth-gate-msg').textContent = 'Falta event_id en URL';
+        return;
+      }
+
+      document.getElementById('back-link').href = '/admin/events/manage.html?event=' + encodeURIComponent(state.eventId);
+
+      state.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      checkAuth();
+    }
+
+    async function checkAuth() {
+      try {
+        const { data: { session } } = await state.sb.auth.getSession();
+        if (!session) { window.location.href = '/admin/login.html'; return; }
+
+        const { data: admin, error } = await state.sb
+          .from('admins')
+          .select('id, first_name, last_name, role, is_active, organization_id')
+          .eq('auth_user_id', session.user.id)
+          .single();
+
+        if (error || !admin || !admin.is_active) {
+          await state.sb.auth.signOut();
+          window.location.href = '/admin/login.html?reason=not_admin';
+          return;
+        }
+
+        state.admin = admin;
+
+        const userEl = document.getElementById('admin-bar-user');
+        if (userEl) userEl.textContent = (admin.first_name || '') + ' ' + (admin.last_name || '');
+
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('admin-bar').style.display = 'flex';
+        document.getElementById('page-content').style.display = 'block';
+
+        await loadEvent();
+        await tick();           // primer load
+        startPolling();
+        startRelativeTimer();
+      } catch (e) {
+        console.error('[auth]', e);
+        document.getElementById('auth-gate-msg').textContent = 'Error: ' + e.message;
+      }
+    }
+
+    window.logoutAdmin = async function() {
+      try { await state.sb.auth.signOut(); } catch (e) {}
+      window.location.href = '/admin/login.html';
+    };
+
+    // ============ LOAD EVENT META ============
+    async function loadEvent() {
+      const { data, error } = await state.sb
+        .from('events')
+        .select('*')
+        .eq('id', state.eventId)
+        .single();
+
+      if (error || !data) {
+        document.getElementById('event-name').textContent = 'Evento no encontrado';
+        document.getElementById('event-meta').textContent = error ? error.message : '';
+        throw new Error('Event not found');
+      }
+
+      state.event = data;
+      document.getElementById('event-name').textContent = data.name || 'Sin nombre';
+      const date = data.event_date ? new Date(data.event_date).toLocaleDateString('es-CR', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+        timeZone: 'America/Costa_Rica'
+      }) : '—';
+      const venue = data.venue_name || '—';
+      document.getElementById('event-meta').textContent = date + ' · ' + venue + ' · LIVE SCANS';
+      document.title = 'VIBE Admin · Live Scans · ' + (data.name || 'Event');
+    }
+
+    // ============ POLLING ============
+    function startPolling() {
+      if (state.pollTimer) clearInterval(state.pollTimer);
+      state.pollTimer = setInterval(tick, POLL_INTERVAL_MS);
+    }
+
+    function startRelativeTimer() {
+      // refresca los "hace Xs" cada segundo sin hacer requests
+      if (state.relTimer) clearInterval(state.relTimer);
+      state.relTimer = setInterval(refreshRelativeTimes, 1000);
+    }
+
+    async function tick() {
+      try {
+        await Promise.all([loadStats(), loadFeed()]);
+        document.getElementById('feed-updated').textContent =
+          'actualizado ' + new Date().toLocaleTimeString('es-CR', { hour12: false });
+      } catch (e) {
+        console.error('[tick]', e);
+        document.getElementById('feed-updated').textContent = 'error: ' + e.message;
+      }
+    }
+
+    // ============ STATS ============
+    async function loadStats() {
+      // Total attendees
+      const { count: total } = await state.sb
+        .from('attendees')
+        .select('id', { count: 'exact', head: true })
+        .eq('event_id', state.eventId);
+      state.attendeesTotal = total || 0;
+
+      // Scans exitosos únicos por ticket (un mismo ticket escaneado varias veces cuenta 1)
+      // Usamos la lista del feed para esto (más eficiente que un count + distinct)
+      // pero para el card hacemos count exacto:
+      const { data: successScans } = await state.sb
+        .from('scans')
+        .select('ticket_id')
+        .eq('event_id', state.eventId)
+        .eq('scan_result', 'success')
+        .not('ticket_id', 'is', null);
+
+      const uniqueTickets = new Set((successScans || []).map(s => s.ticket_id));
+      const scannedCount = uniqueTickets.size;
+
+      // Scans en últimos 60s
+      const sixtySecondsAgo = new Date(Date.now() - 60 * 1000).toISOString();
+      const { count: last60 } = await state.sb
+        .from('scans')
+        .select('id', { count: 'exact', head: true })
+        .eq('event_id', state.eventId)
+        .eq('scan_result', 'success')
+        .gte('scanned_at', sixtySecondsAgo);
+
+      // Render
+      document.getElementById('stat-total').textContent = state.attendeesTotal;
+      document.getElementById('stat-scanned').textContent = scannedCount;
+      document.getElementById('stat-pending').textContent = Math.max(0, state.attendeesTotal - scannedCount);
+      document.getElementById('stat-last60').textContent = last60 || 0;
+
+      const pct = state.attendeesTotal > 0
+        ? Math.round((scannedCount / state.attendeesTotal) * 100)
+        : 0;
+      document.getElementById('stat-scanned-pct').textContent = pct + '% ingresaron';
+    }
+
+    // ============ FEED ============
+    async function loadFeed() {
+      // Solo scans success, ordenados por fecha desc, con datos del ticket → attendee
+      const { data, error } = await state.sb
+        .from('scans')
+        .select(`
+          id,
+          scanned_at,
+          ticket_id,
+          tickets!inner (
+            attendee_id,
+            attendees!inner (
+              first_name,
+              last_name_1,
+              last_name_2,
+              email
+            )
+          )
+        `)
+        .eq('event_id', state.eventId)
+        .eq('scan_result', 'success')
+        .not('ticket_id', 'is', null)
+        .order('scanned_at', { ascending: false })
+        .limit(FEED_LIMIT);
+
+      if (error) throw error;
+
+      renderFeed(data || []);
+    }
+
+    function renderFeed(rows) {
+      const container = document.getElementById('scan-list');
+
+      if (!rows.length) {
+        container.innerHTML = `
+          <div class="scan-empty">
+            <div class="scan-empty-icon">📷</div>
+            <div>Esperando primer scan…</div>
+          </div>`;
+        state.knownScanIds.clear();
+        return;
+      }
+
+      // Detectar IDs nuevos para animación
+      const newIds = new Set();
+      const isFirstLoad = state.knownScanIds.size === 0;
+      rows.forEach(r => {
+        if (!isFirstLoad && !state.knownScanIds.has(r.id)) newIds.add(r.id);
+      });
+
+      container.innerHTML = rows.map(row => {
+        const attendee = row.tickets && row.tickets.attendees;
+        const name = attendee
+          ? [attendee.first_name, attendee.last_name_1, attendee.last_name_2]
+              .filter(Boolean).join(' ').trim() || '—'
+          : '—';
+        const email = attendee && attendee.email ? attendee.email : '—';
+        const fresh = newIds.has(row.id) ? ' fresh' : '';
+
+        return `
+          <div class="scan-row${fresh}" data-scanned-at="${row.scanned_at}">
+            <div class="scan-name">${escapeHtml(name)}</div>
+            <div class="scan-email">${escapeHtml(email)}</div>
+            <div class="scan-time-abs">${formatAbsTime(row.scanned_at)}</div>
+            <div class="scan-time-rel">${formatRelTime(row.scanned_at)}</div>
+          </div>`;
+      }).join('');
+
+      // Actualizar IDs conocidos
+      state.knownScanIds = new Set(rows.map(r => r.id));
+    }
+
+    // ============ TIME HELPERS ============
+    function formatAbsTime(iso) {
+      try {
+        return new Date(iso).toLocaleTimeString('es-CR', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+          timeZone: 'America/Costa_Rica'
+        });
+      } catch (e) { return '—'; }
+    }
+
+    function formatRelTime(iso) {
+      const diff = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+      if (diff < 5) return 'ahora';
+      if (diff < 60) return 'hace ' + Math.floor(diff) + 's';
+      if (diff < 3600) return 'hace ' + Math.floor(diff / 60) + 'm';
+      if (diff < 86400) return 'hace ' + Math.floor(diff / 3600) + 'h';
+      return 'hace ' + Math.floor(diff / 86400) + 'd';
+    }
+
+    function refreshRelativeTimes() {
+      document.querySelectorAll('.scan-row').forEach(row => {
+        const iso = row.getAttribute('data-scanned-at');
+        if (!iso) return;
+        const relEl = row.querySelector('.scan-time-rel');
+        if (relEl) relEl.textContent = formatRelTime(iso);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ============ START ============
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+    // Cleanup al salir
+    window.addEventListener('beforeunload', () => {
+      if (state.pollTimer) clearInterval(state.pollTimer);
+      if (state.relTimer) clearInterval(state.relTimer);
+    });
+  })();
+  </script>
+
+</body>
+</html>
